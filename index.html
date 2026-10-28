@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+
+<title>Missing Letters Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: one calm reading column, set tabs on top, passage with exam-style letter boxes, results below. Dark only (easier on the eyes). */
+:root{
+  --bg:#12161f; --panel:#1a202c; --panel-2:#212938; --line:#2e3748;
+  --fg:#e7e9ee; --muted:#9ba4b6; --accent:#f4b860; --accent-ink:#1b1408;
+  --ok:#74d39a; --bad:#ff8a7a; --form:#8fb7ff; --blank:#c9a8ff;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+  --mono:"Atkinson Hyperlegible Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:28px 64px;display:flex;flex-direction:column;gap:22px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0;text-wrap:balance}
+details.tips{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px 18px}
+details.tips summary{cursor:pointer;font-weight:700;padding:12px 0;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.tips summary::after{content:"Show";font-size:13px;color:var(--muted);font-weight:400}
+details.tips[open] summary::after{content:"Hide"}
+.tips ol{margin:0 0 14px;padding-left:22px;display:flex;flex-direction:column;gap:8px}
+.tips b{color:var(--accent)}
+.tabs{display:flex;flex-direction:column;gap:14px}
+.tab .b.pr{color:var(--fg);opacity:.85}
+.parts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.part{font:inherit;font-size:13px;font-weight:700;border-radius:99px;padding:5px 12px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
+.part[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pairtotal{margin-top:14px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2)}
+.pairtotal b{font-family:var(--display);font-size:22px}
+.nextrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tabgrp h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tabrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:640px){.tabrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mine{font-family:var(--body);font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+.tab{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tab .t{font-weight:700;font-size:15px}
+.tab .b{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{border-color:var(--accent);background:var(--panel-2)}
+.tab:focus-visible,.btn:focus-visible,.box:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.clock{font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums;padding:6px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line)}
+.clock.low{color:var(--bad);border-color:var(--bad)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;border-radius:9px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--fg)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 20px 22px}
+.headline{font-family:var(--display);font-weight:800;font-size:clamp(22px,5vw,28px);line-height:1.15;margin:0 0 6px;text-wrap:balance;border-bottom:2px solid var(--line);padding-bottom:8px}
+.passage{font-size:18px;line-height:2.5;margin:12px 0 0;max-width:68ch}
+.gap{display:inline-flex;align-items:baseline;gap:2px;white-space:nowrap;position:relative;padding-left:0}
+.num{font-family:var(--mono);font-size:10.5px;color:var(--muted);align-self:flex-start;margin-right:1px;line-height:1}
+.given{font-family:var(--mono);font-weight:700;font-size:18px}
+.box{width:1.15em;height:1.5em;padding:0;text-align:center;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:4px;vertical-align:baseline}
+.box:disabled{opacity:1}
+.box.auto{color:var(--form);border-bottom-color:var(--form)}
+.more{display:none;font-family:var(--mono);color:var(--muted);margin-left:1px}
+.passage.exam .gap.long:not(.done):not(.ok):not(.no) .box.rest{opacity:.45;border-bottom-color:var(--line);pointer-events:none}
+.passage.exam .gap.done .box{border-color:var(--form)}
+.opt{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;margin-top:10px}
+.opt input{width:18px;height:18px;accent-color:var(--accent)}
+.gap.ok .box{border-color:var(--ok);color:var(--ok)}
+.gap.no .box{border-color:var(--bad);color:var(--bad)}
+.fix{font-family:var(--mono);font-size:13px;color:var(--ok);margin-left:4px}
+.banner{border-radius:10px;padding:10px 14px;background:var(--panel-2);border:1px solid var(--bad);color:var(--fg)}
+.score{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+.score .big{font-family:var(--display);font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.score .pace{color:var(--muted)}
+.cats{display:grid;gap:10px;margin-top:16px}
+.cat{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:12px 14px;background:var(--panel-2)}
+.cat h3{margin:0 0 4px;font-size:16px;display:flex;justify-content:space-between;gap:10px}
+.cat h3 span{color:var(--c);font-variant-numeric:tabular-nums}
+.cat p{margin:0;color:var(--fg)}
+.review{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.review li{display:grid;grid-template-columns:2.2em minmax(0,1fr);gap:4px 10px;padding:12px 0;border-top:1px solid var(--line)}
+.review .n{font-family:var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.review .words{font-family:var(--mono);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.review .hers{color:var(--bad);text-decoration:line-through;text-decoration-thickness:1px}
+.review .right{color:var(--ok);font-weight:700}
+.chip{font-family:var(--body);font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;color:var(--bg);background:var(--c)}
+.review .why{grid-column:2;color:var(--muted);font-size:15.5px}
+.gotright{margin:14px 0 0;color:var(--muted)}
+.gotright b{color:var(--ok)}
+.c-blank{--c:var(--blank)} .c-form{--c:var(--form)} .c-spelling{--c:var(--accent)} .c-meaning{--c:var(--bad)}
+.note{font-size:14px;color:var(--muted);margin:0}
+.prog{display:flex;flex-direction:column;gap:16px}
+.prog-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 14px}
+.sync{font-size:13px;color:var(--muted)}
+.sync b{color:var(--ok);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.stat .v{font-family:var(--display);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .k{font-size:12.5px;color:var(--muted)}
+.mixbar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--panel-2);border:1px solid var(--line)}
+.mixbar span{background:var(--c)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:5px;vertical-align:-1px}
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.hist li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:15px;align-items:baseline}
+.hist .sc{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700}
+.hist .when{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.revisit{display:flex;flex-wrap:wrap;gap:6px}
+.revisit span{font-family:var(--mono);font-size:14px;padding:3px 9px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line)}
+.tab.done .b::before{content:"✓ ";color:var(--ok)}
+.reward{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;background:var(--panel-2);border:1px solid var(--accent);border-radius:12px;padding:14px 16px}
+.reward .big{font-family:var(--display);font-weight:800;font-size:28px;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.reward .sub2{font-size:13.5px;color:var(--muted)}
+.meter{display:flex;gap:4px;margin-top:6px}
+.meter i{width:22px;height:22px;border-radius:6px;border:1px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:14px;color:var(--muted)}
+.meter.week i{width:26px;font-size:12px;font-weight:700}
+.meter i.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.earned{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--panel-2);border:1px solid var(--accent)}
+.earned b{color:var(--accent)}
+.backup summary{cursor:pointer;font-size:14px;color:var(--muted)}
+.backup textarea{width:100%;min-height:70px;margin-top:8px;font-family:var(--mono);font-size:12px;background:var(--panel-2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical}
+.backup .btns{margin-top:8px}
+@media (prefers-reduced-motion:no-preference){.box{transition:border-color .15s,color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Missing <em>Letters</em> Trainer</h1>
+    <p class="sub">Twelve pairs, like the real exam: Part 1 is a story and Part 2 is non-fiction, each with its own timer. Words from her own vocabulary list are marked ★ in the answers. The clock gives about 50 seconds per gap. Earn stars for good habits and swap them for movie time.</p>
+  </header>
+
+  <details class="tips" id="tips" open>
+    <summary>How to tackle missing letters</summary>
+    <ol>
+      <li><b>Read the whole sentence first</b>, and the one before. The meaning usually gives the word away.</li>
+      <li><b>In the exam you only type the next two letters.</b> If they’re right, the word fills itself in. If nothing happens, those two letters are wrong: think of another word that fits and try again.</li>
+      <li><b>Skip and come back.</b> You don’t have to go in order. Do the ones you know first, then return to the hard ones.</li>
+      <li><b>Check the ending.</b> “was” or “were” often needs -ed or -ing. “Three” or “a few” needs a plural -s. A word saying <i>how</i> often ends -ly.</li>
+      <li><b>Get the first two letters exactly right.</b> Watch tricky starts like ph- (pharaoh), wr- (wrench), kn-, rh- (rhythm) and double letters (su<i>cc</i>eeded).</li>
+      <li><b>Easy ones first, never leave a gap empty.</b> Every gap is worth one mark. A guess can score; a blank can’t.</li>
+      <li><b>Newspaper articles use formal reporting words:</b> residents, announced, according to, spokesperson, confirmed. Expect them.</li>
+      <li><b>Reread with your word in.</b> If it sounds wrong, it probably is.</li>
+    </ol>
+  </details>
+
+  <section class="card prog" id="progress">
+    <div class="prog-head"><h2>Progress</h2><span class="sync" id="sync">Connecting…</span></div>
+    <p class="note" style="margin-top:-6px">Stars for each set: ★ no blanks, ★ 70% or more right, ★ 90% or more right, ★ beating your best on that set. Get 4 stars in a day to unlock 15 minutes of movie time that day.</p>
+    <div class="reward" id="reward"></div>
+    <div id="progBody"><p class="note">No sets finished yet. Results appear here after each “Check answers”.</p></div>
+    <details class="backup" id="backup" open>
+      <summary><b style="color:var(--fg)">Back up and restore</b> · keep progress safe or move it to another device</summary>
+      <p class="note" style="margin-top:8px">Copy the backup code and keep it somewhere safe (a note or a message to yourself). To move progress, paste the code on the other device and press Restore.</p>
+      <textarea id="backupCode" spellcheck="false" placeholder="Backup code appears here, or paste one to restore"></textarea>
+      <div class="btns"><button class="btn" type="button" id="copyBackup">Copy backup code</button><button class="btn" type="button" id="restoreBackup">Restore</button></div>
+      <p class="note" id="backupMsg" style="margin-top:6px" aria-live="polite"></p>
+    </details>
+  </section>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+
+  <section class="card" aria-live="polite">
+    <div class="bar">
+      <div><div class="parts" id="parts"></div><h2 id="setTitle"></h2><p class="note" id="src" hidden style="margin-top:2px"></p></div>
+      <div class="btns">
+        <span class="clock" id="clock">10:00</span>
+      </div>
+    </div>
+    <p class="note" id="hint" style="margin-top:8px">The clock starts when you type the first letter.</p>
+    <label class="opt" for="autoFill"><input type="checkbox" id="autoFill"> Exam mode (like CEM Select): the boxes show the word’s length, but you only type the next two letters. If they’re right, the word fills in and you get the mark</label>
+    <div class="passage" id="passage"></div>
+    <div class="bar" style="margin-top:18px">
+      <div class="btns">
+        <button class="btn primary" id="checkBtn" type="button">Check answers</button>
+        <button class="btn" id="resetBtn" type="button">Start again</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="results" hidden></section>
+
+  <details class="tips" id="gloss">
+    <summary>Word list with meanings (contains the answers)</summary>
+    <div id="glossBody"></div>
+  </details>
+</div>
+
+<script>
+const SETS = [
+ {"title":"Treasure Island","src":"Adapted from Treasure Island by Robert Louis Stevenson (1883)","text":"I remember him as if it were yesterday, as he came {0} to the inn door, his sea-chest following behind him in a hand-barrow: a tall, strong, heavy, nut-brown man, his tarry pigtail falling over the shoulder of his soiled blue coat, his hands ragged and scarred, with black, broken nails, and the sabre cut across one cheek, a dirty, livid white. I remember him looking round the cove and {1} to himself as he did so. Then he rapped on the door with a bit of stick that he carried, and when my father {2}, called roughly for a glass of rum. This, when it was brought to him, he drank slowly, {3} on the taste and still looking about him at the cliffs and up at our signboard. “This is a handy cove,” says he at length, “and a pleasant {4} inn. Much company, mate?” My father told him no, very little company, the more was the {5}. “Well, then,” said he, “this is the place for me. I’m a plain man; rum and bacon and eggs is what I want, and that head up there for to watch ships off. You may call me captain.” And he threw down three or four gold pieces on the {6}. Bad as his clothes were and coarsely as he spoke, he seemed like a man {7} to be obeyed. He was a very {8} man by custom. All day he hung round the cove or upon the cliffs with a brass {9}; all evening he sat in a corner of the parlour next the fire. Mostly he would not speak when spoken to, only look up sudden and {10} and blow through his nose like a fog-horn, and we soon learned to let him be. Every day when he came back from his stroll he would ask if any {11} men had gone by along the road. At first we thought it was the want of company that made him ask, but at last we began to see he was {12} to avoid them.","gaps":[["plodding",3],["whistling",3],["appeared",3],["lingering",3],["situated",3],["pity",2],["threshold",3],["accustomed",3],["silent",2],["telescope",3],["fierce",3],["seafaring",3],["desirous",3]]},
+ {"title":"The Hound of the Baskervilles","src":"Adapted from The Hound of the Baskervilles by Arthur Conan Doyle (1902)","text":"Over the green squares of the fields and the low curve of a wood there rose in the distance a grey, {0} hill, with a strange jagged summit, dim and vague, like some fantastic landscape in a dream. Baskerville sat for a long time, his eyes fixed upon it, and I read upon his {1} face how much it meant to him, this first sight of the place where the men of his family had ruled so long. The wagonette swung round into a side road, and we curved upward through deep lanes worn by centuries of wheels, high banks on either side, heavy with {2} moss and ferns. Bronzing bracken and {3} bramble gleamed in the light of the sinking sun. Still rising, we passed over a narrow granite bridge and skirted a noisy stream which gushed swiftly down, foaming and roaring amid the grey {4}. Suddenly we saw a soldier on horseback, erect and clear like a {5} upon its pedestal, his rifle ready over his forearm. He was watching the road along which we travelled. “There’s a {6} escaped from Princetown, sir,” said our driver. “He’s been out three days now, and the {7} watch every road and every station, but they’ve had no sight of him yet.” The road grew {8} and wilder over huge russet and olive slopes, sprinkled with giant stones. Now and then we passed a moorland cottage, walled and roofed with stone, with no creeper to soften its {9} outline. Suddenly we looked down into a cup-like {10}, patched with stunted oaks and firs which had been twisted and bent by the fury of years of storm. Two high, narrow towers rose over the trees. The driver pointed with his whip. “Baskerville Hall,” said he.","gaps":[["melancholy",3],["eager",2],["dripping",3],["mottled",3],["boulders",3],["statue",3],["convict",3],["warders",3],["bleaker",3],["harsh",2],["depression",3]]},
+ {"title":"The Wild Wood","src":"Adapted from The Wind in the Willows by Kenneth Grahame (1908)","text":"There was nothing to alarm the Mole at first. Twigs {0} under his feet, logs tripped him, and fungi on stumps startled him for a moment by their likeness to something familiar and far away; but that was all fun, and exciting. It led him on, and he {1} to where the light was less, and trees crouched nearer and nearer, and holes made ugly mouths at him on either side. Everything was very still now. The dusk advanced on him {2}, rapidly, gathering in behind and before. Then the faces began. It was over his shoulder, and {3}, that he first thought he saw a face: a little evil wedge-shaped face, looking out at him from a hole. When he turned and {4} it, the thing had vanished. He quickened his pace, telling himself {5} not to begin imagining things. He passed another hole, and another; and then, yes, certainly a little narrow face with hard eyes had flashed up for an instant from a hole, and was gone. He {6}, braced himself and strode on. Then suddenly every hole, far and near, seemed to have its face, all fixing on him glances of {7} and hatred. Then the {8} began. He thought it was only falling leaves at first, so slight and {9} was the sound of it. Then it took a regular {10}, and he knew it for the pat-pat-pat of little feet. In panic, he began to run too, {11}, he knew not where. At last he took refuge in the deep dark hollow of an old beech tree, which offered shelter, {12}, perhaps even safety. He could only {13} down into the dry leaves and hope he was safe for a time. And as he lay there panting and trembling, he knew at last that dread thing which other little creatures of field and hedgerow had {14} here: the Terror of the Wild Wood.","gaps":[["crackled",3],["penetrated",3],["steadily",3],["indistinctly",3],["confronted",3],["cheerfully",3],["hesitated",3],["malice",3],["pattering",3],["delicate",3],["rhythm",2],["aimlessly",3],["concealment",3],["snuggle",3],["encountered",3]]},
+ {"title":"The Secret Garden","src":"Adapted from The Secret Garden by Frances Hodgson Burnett (1911)","text":"Mary had stepped close to the robin, and suddenly a gust of wind swung aside some {0} trails of ivy. She jumped towards it and caught it in her hand, because she had seen something {1}: a round knob which had been covered by the leaves hanging over it. It was the knob of a door. She put her hands under the leaves and began to pull and push them aside. Thick as the ivy hung, it was nearly all a loose and swinging {2}. Mary’s heart began to thump and her hands to shake a little in her delight and {3}. What was this under her hands which was square and made of iron? It was the lock of the door which had been closed for ten years. She drew the key out of her pocket and found that it {4} the keyhole. It took two hands to turn it, but it did turn. She held back the swinging ivy and pushed the door, which opened slowly, slowly. Then she {5} through it, shut it behind her, and stood with her back against it, breathing quite fast with excitement, and wonder, and delight. She was standing inside the secret garden. It was the sweetest, most {6}-looking place anyone could imagine. The high walls were covered with the {7} stems of climbing roses, so thick that they were matted together. All the ground was covered with grass of a {8} brown, and out of it grew clumps of bushes which were surely rosebushes if they were alive. The climbing roses had run all over the trees and swung down long {9} which made light, swaying curtains. Here and there they had {10} from one tree to another, making lovely bridges of themselves. There were neither leaves nor roses on them now, and their thin grey or brown branches looked like a sort of {11} mantle spreading over everything. “How still it is!” she {12}. “How still!” The robin, who had flown to his treetop, did not even flutter his wings; he sat without {13}, and looked at Mary.","gaps":[["loose",3],["underneath",3],["curtain",3],["excitement",3],["fitted",3],["slipped",3],["mysterious",3],["leafless",3],["wintry",3],["tendrils",3],["crept",3],["hazy",2],["whispered",3],["stirring",3]]},
+ {"title":"Fire at the Inn","src":"Adapted from Black Beauty by Anna Sewell (1877)","text":"I do not know how long I had slept, nor what time in the night it was, but I woke up very {0}, though I hardly knew why. The air seemed all thick and {1}. I heard Ginger {2}, and one of the other horses seemed very restless. It was quite dark, and I could see nothing, but the stable was full of smoke, and I hardly knew how to {3}. Then I heard a soft rushing sort of noise, and a low {4} and snapping. There was something in the sound so strange that it made me {5} all over. The other horses were now all awake; some were pulling at their halters, others were {6}. At last I heard steps outside, and the ostler burst into the stable with a lantern, and began to untie the horses and try to lead them out; but he seemed in such a hurry and so {7} himself that he frightened me still more. No doubt we were very foolish, but danger seemed to be all round, and everything was strange and {8}. As I looked upward I saw a red light {9} on the wall, and the roaring overhead was dreadful. The next thing I heard was James’s voice, quiet and {10}, as it always was. “Come, Beauty, on with your {11}, my boy, we’ll soon be out of this smoke.” Then he took the scarf off his neck and tied it lightly over my eyes, and, patting and {12}, he led me out of the stable.","gaps":[["uncomfortable",3],["choking",3],["coughing",3],["breathe",3],["crackling",3],["tremble",3],["stamping",3],["frightened",3],["uncertain",3],["flickering",3],["cheery",3],["bridle",3],["coaxing",3]]},
+ {"title":"Rikki-tikki-tavi","src":"Adapted from The Jungle Book by Rudyard Kipling (1894)","text":"Rikki-tikki was a mongoose, rather like a little cat in his fur and his tail, but quite like a weasel in his head and his {0}. His eyes and the end of his restless nose were pink; he could scratch himself anywhere he pleased with any leg, and his war-cry as he {1} through the long grass was “Rikk-tikk-tikki-tikki-tchk!” One day, a high summer flood washed him out of the {2} where he lived with his father and mother, and carried him, kicking, down a roadside ditch. He found a little wisp of grass {3} there, and clung to it till he lost his senses. When he revived, he was lying in the hot sun in the middle of a garden path, very {4} indeed, and a small boy was saying, “Here’s a dead mongoose. Let’s have a {5}.” “No,” said his mother, “let’s take him in and dry him.” So they {6} him in cotton wool and warmed him over a little fire, and he opened his eyes and sneezed. It is the hardest thing in the world to frighten a mongoose, because he is eaten up from nose to tail with {7}. The {8} of all the mongoose family is “Run and find out”. Then, inch by inch, out of the grass rose up the head and spread hood of Nag, the big black {9}. He stayed balancing to and fro, exactly as a dandelion tuft balances in the wind, and he looked at Rikki-tikki with wicked eyes that never change their {10}, whatever the snake may be thinking.","gaps":[["habits",3],["scuttled",3],["burrow",3],["floating",3],["draggled",3],["funeral",3],["wrapped",3],["curiosity",3],["motto",2],["cobra",2],["expression",3]]},
+ {"title":"Scrooge","src":"Adapted from A Christmas Carol by Charles Dickens (1843)","text":"Oh! But he was a tight-fisted hand at the grindstone, Scrooge! A {0}, wrenching, grasping, scraping, clutching old sinner! Hard and sharp as flint, from which no steel had ever struck out {1} fire; secret, and self-contained, and solitary as an oyster. The cold within him froze his old features, nipped his pointed nose, {2} his cheek, stiffened his walk, made his eyes red and his thin lips blue. He carried his own low {3} always about with him; he iced his office in the summer, and didn’t thaw it one degree at Christmas. Heat and cold had little {4} on Scrooge. No falling snow was more {5} upon its purpose. Nobody ever stopped him in the street to say, with gladsome looks, “My dear Scrooge, how are you?” No beggars {6} him to give them a penny, and no man or woman ever once in all his life inquired the way to such and such a place, of Scrooge. Even the blind men’s dogs seemed to know him, and when they saw him coming would {7} their owners into doorways. Once upon a time, on Christmas Eve, old Scrooge sat busy in his counting-house. It was cold, bleak, biting weather, and he could hear the people outside go {8} up and down. The door was open so that he might keep his eye upon his clerk, who, in a {9} little cell beyond, was copying letters. Scrooge had a very small fire, but the clerk’s fire was so very much smaller that it looked like one coal.","gaps":[["squeezing",3],["generous",3],["shrivelled",3],["temperature",3],["influence",3],["intent",3],["implored",3],["tug",2],["wheezing",3],["dismal",3]]},
+ {"title":"The Landslide","src":"Adapted from The Railway Children by E. Nesbit (1906)","text":"“Look,” said Peter {0}, “the tree is moving!” The children stared. The trees on the far side of the {1} were moving, but not with the wind. They were walking slowly down the bank like a {2} of cattle. Then, with a rumble and a roar, rocks and trees and grass and bushes slid down the face of the cutting and fell on the line with a {3} crash. A cloud of dust rose up. “It’s right across the line,” said Peter, {4}. “The 11.29 hasn’t gone by yet. We must let them know at the station, or there’ll be a most {5} accident.” “There isn’t time,” said Bobbie. “It’s past eleven.” “If only we had something red,” said Phyllis, “we could go round the corner and wave to the train.” Then Bobbie {6} their red flannel petticoats. They tore them into strips and tied them to sticks to make six little {7}. They stood on the line and waited, and the minutes seemed like hours. Then they heard the {8} rumble and hum of the metals, and a puff of white steam showed far away along the line. “Stand firm,” said Peter, “and wave like mad!” The train came on {9}. Bobbie stood on the line, waving both flags {10}, and the engine thundered towards her. “It’s no good,” Phyllis cried, but the train slowed and stopped with a jar and a {11}, not twenty yards from where Bobbie stood. She had {12}, white and still, beside the line.","gaps":[["suddenly",3],["cutting",3],["herd",2],["thundering",3],["breathless",3],["frightful",3],["remembered",3],["flags",2],["distant",3],["furiously",3],["frantically",3],["shudder",3],["fainted",3]]},
+ {"title":"Beetle Discovery","headline":"Rare Beetle Found in City Park","src":"Newspaper report (written for this page)","text":"A beetle not seen in Britain for over fifty years has been {0} in a north London park, to the delight of local wildlife experts. The tiny insect, which measures just four millimetres, was spotted by eleven-year-old Amara Okafor during a school {1} last Tuesday. “I thought it was a speck of dirt at first,” she {2}. “Then it started to move.” Scientists from the Natural History Museum have since {3} that the beetle is a genuine find. According to Dr Helen Marsh, an expert in rare insects, the species was {4} believed to have died out in this country. “This is an {5} discovery,” she said. “It shows how much we still have to learn about the {6} on our own doorstep.” The park’s {7} has now fenced off part of the meadow to protect the beetle’s home. However, not all {8} are pleased. Some dog walkers have {9} that they can no longer use their favourite path. A {10} for the council said the measures were only temporary and would be reviewed in the spring. Amara, meanwhile, has been invited to the museum, where her beetle will go on {11}.","gaps":[["discovered",3],["expedition",3],["admitted",3],["confirmed",3],["previously",3],["extraordinary",3],["habitats",3],["management",3],["residents",3],["complained",3],["spokesperson",3],["exhibition",3]]},
+ {"title":"Bypass Row","headline":"Town Divided Over Plans for New Bypass","src":"Newspaper report (written for this page)","text":"Plans to build a bypass around the market town of Ashbury have {0} a heated debate among residents. The council {1} last week that the road would reduce traffic in the narrow high street, which has become notorious for long queues at rush hour. Supporters argue that the bypass is {2}. “Lorries rumble past my shop window every few minutes,” said café owner Raj Patel. “The noise is unbearable, and the pollution is even worse.” Opponents, however, are {3} to stop the scheme. The proposed route would cut through Hollow Wood, an {4} woodland that is home to badgers, owls and several endangered plants. “Once these trees are gone, they can never be replaced,” warned campaigner Ellen Ford, who has collected more than three thousand {5} on a petition. A public meeting will be held at the town hall next Thursday, where both sides will have the {6} to share their views. A final {7} is expected before the end of the year.","gaps":[["sparked",3],["announced",3],["essential",3],["determined",3],["ancient",2],["signatures",3],["opportunity",3],["decision",3]]},
+ {"title":"Roman Mosaic","headline":"Roman Mosaic Unearthed Beneath School Playground","src":"Newspaper report (written for this page)","text":"Builders working on a new classroom at Hillside Primary School have {0} a Roman mosaic floor that experts believe is almost two thousand years old. Work was {1} halted when a digger driver noticed fragments of coloured tile in the soil. A team of {2} arrived the following morning and began carefully brushing away the earth. What they found {3} them: an almost complete floor, decorated with dolphins, vines and a portrait of a Roman goddess. “It is in {4} condition,” said Professor James Ward, who is leading the excavation. “It probably {5} to a wealthy family who lived in a large villa on this site.” The head teacher, Mrs Linda Shaw, said pupils had been {6} by the discovery. “Every break time there is a crowd at the fence,” she said. “The children have been writing their own {7} for the school newspaper.” The mosaic will be lifted and {8} to the county museum, where it will be restored and put on public view. The {9} of the classroom is likely to be delayed by several months, but Mrs Shaw says nobody minds. “How many schools can say they have a Roman villa under the {10}?”","gaps":[["uncovered",3],["immediately",3],["archaeologists",3],["astounded",3],["remarkable",3],["belonged",3],["fascinated",3],["reports",3],["transported",3],["construction",3],["playground",4]]},
+ {"group":"Classic fiction","title":"Phileas Fogg","src":"Adapted from Around the World in Eighty Days by Jules Verne (1873)","text":"Mr Phileas Fogg lived, in 1872, at No. 7 Saville Row, in London. He was one of the most {0} members of the Reform Club, though he seemed always to avoid attracting attention; an enigmatic person, about whom little was known, except that he was a polished man of the world. Certainly an Englishman, it was more {1} whether Phileas Fogg was a Londoner. He was never seen on the Stock Exchange, nor at the Bank. He was not a {2}, nor a gentleman farmer. Was Phileas Fogg rich? Undoubtedly. But those who knew him best could not imagine how he had made his money. He was not lavish, nor, on the contrary, avaricious; for whenever he knew that money was needed for a noble, useful or {3} purpose, he supplied it quietly and sometimes anonymously. He was, in short, the least {4} of men. He talked very little, and seemed all the more mysterious for his {5} manner. His daily habits were quite open to {6}; but whatever he did was so exactly the same thing that he had always done before, that the curious were fairly puzzled. He breakfasted and dined at the club, at hours {7} fixed, in the same room, at the same table, never bringing a guest with him. That morning he had dismissed his servant, James Forster, because that {8} youth had brought him shaving-water at eighty-four degrees instead of eighty-six; and he was now awaiting his successor, who was due between eleven and half-past. Phileas Fogg sat squarely in his armchair, his feet close together like those of a soldier on parade, his hands resting on his knees, his body straight, watching a {9} clock which showed the hours, the minutes, the seconds, the days, the months and the years. At exactly half-past eleven Mr Fogg would, according to his daily {10}, leave Saville Row and walk to the Reform Club.","gaps":[["noticeable",3],["doubtful",3],["merchant",3],["benevolent",3],["communicative",3],["taciturn",3],["observation",3],["mathematically",3],["hapless",3],["complicated",3],["custom",3]]},
+ {"group":"Classic fiction","title":"The Red-Room","src":"Adapted from Jane Eyre by Charlotte Brontë (1847)","text":"There was no {0} of taking a walk that day. We had been wandering, indeed, in the leafless shrubbery an hour in the morning; but since dinner the cold winter wind had brought with it clouds so sombre, and a rain so {1}, that further outdoor exercise was now out of the question. I was glad of it. I never liked long walks, especially on chilly afternoons: dreadful to me was the coming home in the raw twilight, with nipped fingers and toes, and a heart saddened by the scoldings of Bessie, the nurse, and humbled by the {2} of my physical inferiority to Eliza, John and Georgiana Reed. A small breakfast-room {3} the drawing-room, and I slipped in there. It contained a bookcase: I soon {4} myself of a volume, taking care that it should be one stored with pictures. I climbed into the window-seat, gathered up my feet and sat cross-legged; and, having drawn the red curtain nearly close, I was hidden away from everyone. Folds of scarlet drapery shut in my view to the right hand; to the left were the clear panes of glass, protecting, but not {5} me from the dreary November day. At {6}, while turning over the leaves of my book, I studied the aspect of that winter afternoon. Afar, it offered a pale blank of mist and cloud; near, a scene of wet lawn and storm-beaten shrub, with {7} rain sweeping away wildly before a long and lamentable blast. John Reed had not much {8} for his mother and sisters, and none at all for me. He bullied and punished me, not two or three times in the week, nor once or twice in the day, but {9}.","gaps":[["possibility",3],["penetrating",3],["consciousness",3],["adjoined",3],["possessed",3],["separating",3],["intervals",3],["incessant",3],["affection",3],["continually",3]]},
+ {"group":"Classic fiction","title":"Gulliver in Lilliput","src":"Adapted from Gulliver’s Travels by Jonathan Swift (1726)","text":"I lay down on the grass, which was very short and soft, where I slept sounder than ever I remember to have done in my life, and, as I {0}, about nine hours; for when I awoke, it was just daylight. I tried to rise, but was not able to stir: for, as I happened to lie on my back, I found my arms and legs were strongly {1} on each side to the ground, and my hair, which was long and thick, tied down in the same manner. I {2} felt several slender cords across my body, from my armpits to my thighs. I could only look upwards; the sun began to grow hot, and the light {3} my eyes. I heard a confused noise about me, but in the {4} I lay, could see nothing except the sky. In a little time I felt something alive moving on my left leg, which, advancing gently forward over my chest, came almost up to my chin. Bending my eyes downwards as much as I could, I {5} it to be a human creature not six inches high, with a bow and arrow in his hands, and a quiver at his back. In the meantime I felt at least forty more of the same kind (as I {6}) following the first. I was in the utmost astonishment, and roared so loud that they all ran back in a fright; and some of them, as I was afterwards told, were hurt by {7} from my sides upon the ground. However, they soon returned, and one of them, who ventured so far as to get a full sight of my face, lifting up his hands and eyes in admiration, cried out in a shrill but {8} voice, “Hekinah degul!” The others {9} the same words several times, but I knew not what they meant. I lay all this while, as the reader may believe, {10} and in great uneasiness. At length, struggling to get loose, I managed to break the strings and {11} out the pegs that fastened my left arm to the ground.","gaps":[["reckoned",3],["fastened",3],["likewise",3],["offended",3],["posture",3],["perceived",3],["conjectured",3],["leaping",3],["distinct",3],["repeated",3],["bewildered",3],["wrench",3]]},
+ {"group":"Classic fiction","title":"Buck’s First Night","src":"Adapted from The Call of the Wild by Jack London (1903)","text":"Buck’s first day on the Dyea beach was like a {0}. Every hour was filled with shock and surprise. He had been suddenly jerked from the heart of a comfortable home and flung into a wild and savage world. No lazy, sun-kissed life was this, with nothing to do but loaf and be bored. Here was neither peace, nor rest, nor a moment’s safety. All was {1} and action, and every moment life and limb were in peril. There was an imperative need to be {2} alert, for these dogs and men were not town dogs and men. They were {3}, all of them, who knew no law but the law of club and fang. When night came on, Buck looked for a place to sleep. The tent was lit by a candle, glowing warmly in the midst of the white plain; and when he, as a matter of course, entered it, both Perrault and François bombarded him with curses and cooking utensils, till he recovered from his {4} and fled ignominiously into the outer cold. A chill wind was blowing that nipped him sharply and bit with special venom into his {5} shoulder. He lay down on the snow and tried to sleep, but the frost soon drove him to his feet. Miserable and {6}, he wandered among the many tents, only to find that one place was as cold as another. Then he came upon Billee, curled under the snow in a snug ball. So that was the way they did it, eh? Buck {7} selected a spot, and with much fuss and wasted effort proceeded to dig a hole for himself. In a moment the heat from his body filled the {8} space and he was asleep. The day had been long and {9}, and he slept soundly, though he growled and barked and wrestled with bad dreams.","gaps":[["nightmare",3],["confusion",3],["constantly",3],["savages",3],["consternation",3],["wounded",3],["forlorn",3],["confidently",3],["confined",3],["arduous",3]]},
+ {"group":"News & non-fiction","title":"Shackleton’s Endurance","src":"Non-fiction (written for this page)","text":"In August 1914, as Europe stumbled towards war, a wooden ship called Endurance slipped quietly out of Plymouth harbour. On board were twenty-eight men led by the explorer Ernest Shackleton, whose {0} was nothing less than to cross the entire Antarctic continent on foot. It was a {1} goal: a journey of some 1,800 miles across a frozen wilderness that no human being had ever crossed. The expedition never set foot on the continent. In January 1915, the Endurance became trapped in the pack ice of the Weddell Sea, held fast like a fly in amber. For ten months the crew waited, {2}, as the ship drifted slowly north with the ice. Then, as the {3} pressure of the frozen sea grew, her timbers began to groan and split. In November she sank beneath the ice, leaving the men stranded on a drifting {4} with three small lifeboats and whatever provisions they had managed to save. What followed has become one of the most {5} survival stories of all time. The men camped on the ice for months, {6} and frostbitten, their diet reduced to seal and penguin meat. When the floe at last began to break apart, they took to the boats and, after a {7} week at sea, reached the bleak, uninhabited shores of Elephant Island. There was no chance of being found there. So Shackleton made a bold decision: he and five companions would sail one of the tiny boats 800 miles across the most {8} ocean on Earth to a whaling station on South Georgia. For sixteen days they battled {9} waves and freezing spray. Even after landing, they faced a gruelling march over mountains that had never been mapped. {10}, Shackleton then returned to rescue every one of the men left behind; not a single life had been lost. Today his {11} is held up as a model of courage and resilience. The Endurance herself was {12} found in 2022, lying almost intact three kilometres beneath the surface of the Weddell Sea.","gaps":[["ambition",3],["formidable",3],["helpless",3],["immense",3],["floe",2],["celebrated",3],["famished",3],["harrowing",3],["turbulent",3],["towering",3],["Remarkably",3],["leadership",3],["eventually",3]]},
+ {"group":"News & non-fiction","title":"Tutankhamun’s Tomb","src":"Non-fiction (written for this page)","text":"For five long years, Howard Carter had searched the Valley of the Kings without success, and his wealthy backer, Lord Carnarvon, was beginning to lose patience. Most experts believed that the valley had been {0}: every tomb, they insisted, had long ago been found and plundered by robbers. Carter, however, was {1} that one pharaoh still lay undisturbed. In November 1922, his {2} was finally rewarded. Workers clearing rubble found a stone step cut into the rock, and then a {3} of sixteen steps leading down to a sealed doorway. Carter sent a telegram to Carnarvon in England, and waited {4} for almost three weeks until he arrived. On 26 November, Carter made a small hole in the inner door and held up a candle. At first he could see nothing, as hot air escaping from the {5} made the flame waver. Then, as his eyes {6} to the light, details of the room slowly emerged: strange animals, statues and gold, everywhere the glint of gold. When Carnarvon, unable to bear the {7} any longer, asked whether he could see anything, Carter is said to have replied, “Yes, wonderful things.” The tomb of Tutankhamun, a boy king who had died at about the age of eighteen, held more than five thousand objects, from chariots and {8} to board games and baskets of fruit. Its {9} astonished the world. At its heart lay the king himself, {10} within three coffins, the innermost made of solid gold, his face covered by a magnificent golden mask. It took Carter ten years to record and remove the treasures, a task he carried out with {11} care. Every object was photographed, measured and {12} before it was moved. Newspapers, meanwhile, were gripped by rumours of a deadly curse, especially after Lord Carnarvon died suddenly the following spring. The story was nonsense, but it fired the public’s imagination, and Tutankhamun, once one of Egypt’s most {13} rulers, became the most famous of them all.","gaps":[["exhausted",3],["convinced",3],["persistence",3],["flight",3],["impatiently",3],["chamber",3],["adjusted",3],["suspense",3],["jewellery",3],["opulence",3],["entombed",3],["meticulous",3],["catalogued",3],["obscure",3]]},
+ {"group":"News & non-fiction","title":"Flood After Drought","src":"Newspaper report (written for this page)","text":"After the driest summer since records began, farmers across East Anglia had been praying for rain. Last weekend, their prayers were answered, but not quite in the way they had hoped. A {0} downpour on Saturday night dumped a month’s worth of rain on the region in just six hours. Because the ground had been baked hard by the {1}, the water could not soak in. Instead, it cascaded across fields and into villages, turning country lanes into rivers and leaving dozens of homes {2} under a metre of muddy water. “It is a cruel irony,” said farmer Gareth Hughes, whose wheat had already been {3} by the heat. “All summer we watched the soil crack and the crops {4}. Now what little survived has been {5} away in a single night.” Emergency services worked through the night to {6} families from the worst-affected streets. More than two hundred people were given shelter in a {7} centre at a local school, where volunteers handed out blankets and hot drinks. No serious injuries were reported. Scientists warn that such extreme weather is likely to become more {8}. According to the Met Office, a warmer {9} can hold more moisture, which means that when rain does fall, it is often more intense. “Long dry spells followed by sudden {10} are exactly what climate scientists predict,” explained Professor Anna Clarke. “Communities will need to {11}.” For now, however, the {12} is clearing up. Insurance companies have received hundreds of claims, and local councillors are calling on the government to provide {13} support. “Many of these families have lost everything,” said council leader Sue Barnes. “They need help, and they need it {14}.”","gaps":[["torrential",3],["drought",3],["submerged",3],["devastated",3],["wither",3],["swept",3],["evacuate",3],["makeshift",3],["frequent",3],["atmosphere",3],["deluges",3],["adapt",3],["priority",3],["financial",3],["urgently",3]],"headline":"Farmers Count the Cost as Torrential Rain Ends Record Drought"},
+ {"group":"News & non-fiction","title":"The Great Stink","src":"Non-fiction (written for this page)","text":"In the summer of 1858, London stank. For centuries the city’s waste had flowed, largely untreated, into the River Thames, and as the {0} soared past two and a half million, the problem grew steadily worse. That June, an unusually hot spell turned the river into a {1}, bubbling sewer. The smell was so {2} that it became known simply as the Great Stink. The {3} reached even the Houses of Parliament, which stood on the riverbank. Members of Parliament soaked the curtains in chemicals in a {4} attempt to mask the smell, and some talked of moving the government out of London altogether. The newspapers were full of {5} letters and cruel cartoons. Yet the smell was not the true danger. At the time, many doctors believed that diseases such as cholera were spread by bad air. In fact, as the doctor John Snow had {6} a few years earlier, cholera was carried in contaminated drinking water, much of it drawn from the very same river. Thousands of Londoners had already died in a series of deadly {7}. Faced with such a {8} on their own doorstep, politicians acted with unexpected haste. Within weeks, they had approved a {9} designed by the engineer Joseph Bazalgette. His plan was as {10} as it was ambitious: a network of brick sewers that would intercept the waste before it reached the Thames and carry it far downstream, away from the city. Construction took more than fifteen years and used over 300 million bricks. Bazalgette was famously {11}; he insisted on making the tunnels far larger than necessary, reasoning that the city would one day grow. His {12} proved correct. Many of his sewers are still in use today, and the Victoria Embankment, built to {13} them, remains one of London’s most elegant streets. Bazalgette, though less {14} than many Victorian heroes, may have saved more lives than any of them.","gaps":[["population",3],["fetid",3],["overpowering",3],["stench",3],["futile",3],["indignant",3],["demonstrated",3],["outbreaks",3],["calamity",3],["scheme",3],["ingenious",3],["thorough",3],["foresight",3],["conceal",3],["renowned",3]]},
+ {"group":"News & non-fiction","title":"Saving the Bees","src":"Newspaper report (written for this page)","text":"When beekeeper Tom Riley opened his hives in April, he was {0} by what he found. More than half of his bees had died over the winter, and the survivors were weak and {1}. Tom is not alone. Across Britain, bee numbers have fallen {2} in recent decades. Scientists believe there are several causes, including disease, extreme weather and the use of {3} on farmland. The loss of wild flowers has also left bees with fewer places to {4}. This matters far more than many people realise. Bees {5} around a third of the food we eat, from apples and strawberries to tomatoes. Without them, many crops would {6}, and food prices would rise sharply. Now the village of Little Hadley has decided to act. Volunteers have planted a {7} of wild flowers on an empty patch of land beside the church. The school has built ‘bee hotels’ from bamboo canes, and many families have {8} to stop mowing part of their lawns. “Every garden can become a little {9},” said organiser Priya Shah. “If we all do a small amount, together it makes a huge {10}.” Tom says he is {11} hopeful. “It will take time,” he admitted, “but this summer I have already seen more bees than last year.”","gaps":[["dismayed",3],["sluggish",3],["dramatically",3],["pesticides",3],["feed",2],["pollinate",3],["fail",2],["meadow",3],["pledged",3],["sanctuary",3],["difference",3],["cautiously",3]],"headline":"Village Rallies to Save Its Bees"},
+ {"group":"News & non-fiction","title":"Mary Anning","src":"Non-fiction (written for this page)","text":"In 1811, on the stormy coast of Dorset, a twelve-year-old girl made a discovery that would {0} the scientific world. Mary Anning and her brother Joseph had found the skull of a strange creature {1} in the crumbling cliffs near Lyme Regis. Over the following months, Mary patiently dug out the rest of the {2}, which was more than five metres long. It turned out to be an ichthyosaur, a {3} sea reptile that had lived around 200 million years earlier. Mary’s family were poor, and selling fossils to tourists helped them to {4}. Collecting was {5} work. The best fossils were exposed after winter storms, when the cliffs were most likely to {6}. In 1833, Mary narrowly escaped death when a landslide {7} her beloved dog, Tray. Despite these dangers, she {8} to make remarkable finds, including the first complete plesiosaur. Yet because she was a woman, and not wealthy, she was rarely given {9} for her work. Scientists bought her fossils and wrote papers about them, often without even {10} her name. Today, however, Mary Anning is recognised as one of the {11} of fossil science, and a statue of her now stands in Lyme Regis.","gaps":[["astonish",3],["embedded",3],["skeleton",3],["fearsome",3],["survive",3],["hazardous",3],["collapse",3],["buried",3],["continued",3],["credit",3],["mentioning",3],["pioneers",3]]},
+ {"group":"News & non-fiction","title":"Creatures of the Deep","src":"Non-fiction (written for this page)","text":"The deep ocean makes up most of the living space on Earth, yet it is one of the least {0} places of all. Below about 1,000 metres, no sunlight reaches the water, and the darkness is {1}. The temperature is close to freezing, and the weight of the water above would {2} a human body in seconds. For a long time, scientists assumed that nothing could survive in such a hostile {3}. They were wrong. Deep-sea creatures have developed remarkable ways to {4} with the cold and the dark. Many of them can make their own light, glowing like tiny {5} in the blackness. The anglerfish, for example, dangles a glowing lure in front of its mouth to {6} unsuspecting prey. Others, such as the vampire squid, use flashes of light to {7} their enemies. Food is {8} in the deep, so many animals have huge mouths and stretchy stomachs, allowing them to swallow prey larger than themselves. Some creatures {9} need to eat at all, surviving for months on a single meal. New species are still being {10} almost every year. Explorers use robot submarines to {11} the ocean floor, but most of it has never been seen by human eyes.","gaps":[["explored",3],["total",2],["flatten",3],["environment",3],["cope",2],["torches",3],["attract",3],["confuse",3],["scarce",3],["rarely",3],["identified",3],["investigate",3]]},
+ {"group":"News & non-fiction","title":"The Bicycle Craze","src":"Non-fiction (written for this page)","text":"Today we take the bicycle for granted, but in the nineteenth century it was a {0} new invention. The earliest machines had no pedals at all: riders simply pushed themselves along with their feet. Later came the penny-farthing, with its {1} front wheel and tiny back one. Riders sat so high that a sudden stop could {2} them over the handlebars, an accident known as ‘taking a header’. It was not until the 1880s that the ‘safety bicycle’, with two equal-sized wheels and a chain, made cycling far less {3}. Air-filled tyres soon followed, making the ride much more {4}. Suddenly, ordinary people could travel for miles without a horse or a train {5}. Cycling clubs sprang up all over the country, and {6} of riders took to the roads at weekends. For women in particular, the bicycle brought a new sense of {7}. They could travel {8}, and many swapped their long, heavy skirts for more practical clothing. Some {9} were horrified, claiming that cycling was unladylike or even harmful to health. Their {10} were ignored. By 1900, the bicycle had become one of the most {11} forms of transport in the world, and it remains so today.","gaps":[["thrilling",3],["gigantic",3],["hurl",2],["dangerous",3],["comfortable",3],["ticket",3],["thousands",3],["freedom",3],["independently",3],["critics",3],["objections",3],["popular",3]]},
+ {"group":"News & non-fiction","title":"Library Saved","src":"Newspaper report (written for this page)","text":"A village library that was due to close next month has been saved, thanks to a {0} led by a group of ten-year-olds. The council announced in June that Ashwell Library would shut because it was too {1} to run. The news came as a {2} to the pupils of Ashwell Primary, who visit the library every week. “We couldn’t just sit back and let it happen,” said Lily Chen, aged ten. The children wrote letters to the council, made posters and {3} a sponsored read that raised more than £2,000. They also gathered stories from older residents, who {4} how the library had helped them as children. One {5} man explained that he had learned to read there after leaving school at fourteen. The campaign quickly spread online and {6} support from a famous children’s author. Last night, councillors voted {7} to keep the library open for at least the next five years. Volunteers have offered to staff the library on Saturdays, which will {8} the running costs. Lily and her friends were {9} when they heard the news. “It shows that young people’s {10} really can make a difference,” she said.","gaps":[["campaign",3],["expensive",3],["shock",2],["organised",3],["described",3],["elderly",3],["received",3],["unanimously",3],["lower",3],["overjoyed",3],["voices",3]],"headline":"Pupils’ Campaign Saves Village Library"},
+ {"group":"Classic fiction","title":"Whitewashing the Fence","src":"Adapted from The Adventures of Tom Sawyer by Mark Twain (1876)","text":"Saturday morning had come, and all the summer world was bright and fresh. Tom appeared on the pavement with a bucket of whitewash and a long-handled {0}. He looked at the fence, and all gladness left him. Thirty yards of board fence nine feet high: life seemed to him a heavy {1}. Sighing, he dipped his brush and passed it along the topmost plank, then {2} the vast stretch of fence still to be done. He began to think of the fun he had planned for this day, and his sorrows {3}. Soon the free boys would come tripping along, and they would make fun of him for having to work. At this dark and hopeless moment, an {4} burst upon him! He took up his brush and went {5} to work. Ben Rogers came into sight presently, the very boy whose {6} Tom had been dreading. Ben was eating an apple and giving a long, cheerful whoop now and then, for he was pretending to be a {7}. Tom went on whitewashing and paid no {8} to him. “Say, I’m going swimming,” said Ben. “But of course you’d rather work, wouldn’t you?” Tom {9} the boy for a moment, and said, “What do you call work? Does a boy get a chance to whitewash a fence every day?” That put the thing in a new light. Ben stopped nibbling his apple, and Tom swept his brush daintily back and forth, stepping back to note the {10}. Ben watched every move and got more and more interested. Presently he said, “Say, Tom, let me whitewash a little.” Tom was about to agree, but he {11} his mind. In the end Ben gave up his apple for the {12}, and by the middle of the afternoon the fence had three coats of whitewash on it.","gaps":[["brush",2],["burden",3],["surveyed",3],["multiplied",3],["inspiration",3],["calmly",3],["ridicule",3],["steamboat",4],["heed",2],["contemplated",3],["effect",3],["altered",3],["privilege",3]]},
+ {"group":"Classic fiction","title":"Anne at the Station","src":"Adapted from Anne of Green Gables by L. M. Montgomery (1908)","text":"Matthew Cuthbert drove the old mare along the eight miles to Bright River, a pretty road running between snug farms. When he reached the station, there was no sign of any train; the only living creature in sight was a girl sitting on a pile of wooden shingles at the far end of the {0}. Matthew, barely noticing that it was a girl, edged past her as {1} as possible. She was waiting for something or somebody, and since sitting and waiting was the only thing to do just then, she sat and waited with all her {2}. The stationmaster told Matthew that the train had been and gone, and that a passenger had been left for him: a little girl. “But it’s a boy I’ve come for,” said Matthew {3}. Now he had to walk up to the girl and ask her why she wasn’t a boy, a task harder than facing a lion in its {4}. She was a child of about eleven, in a very short, very tight, very ugly dress. Her face was small, white and thin, and also much {5}; her mouth was large, and so were her eyes. As soon as she saw Matthew, she stood up, grasping the handle of a {6}, old-fashioned bag. “I suppose you are Mr Matthew Cuthbert of Green Gables?” she said in a {7} clear, sweet voice. “I was beginning to be afraid you weren’t coming for me, and I was {8} all the things that might have stopped you.” “I had made up my mind that if you didn’t come, I’d climb up into that big wild cherry tree at the bend and stay all night,” she {9}. “It would be lovely to sleep in a cherry tree all white with blossom in the {10}, don’t you think?” Matthew had taken the thin little hand {11} in his; then and there he decided what to do. He could not tell this child with the glowing eyes that there had been a {12}; he would take her home and let his sister Marilla do that.","gaps":[["platform",3],["quickly",3],["might",2],["blankly",3],["den",2],["freckled",3],["shabby",3],["peculiarly",3],["imagining",3],["chattered",3],["moonshine",4],["awkwardly",3],["mistake",3]]},
+ {"title":"The War of the Worlds","text":"All the railway lines north of the Thames and the South-Eastern people at Cannon Street had been warned of the danger by midnight on Sunday, and {0} were being filled. People were fighting {1} for standing room in the carriages even at two o’clock. By three, people were being trampled and crushed even in Bishopsgate Street, a couple of hundred yards, or more, from Liverpool Street station; revolvers were fired, people attacked, and the policemen who had been sent to direct the traffic, exhausted and {2}, were scuffling with the people they were called out to protect. And as the day advanced, and the engine-drivers and stokers refused to return to London, the pressure of the flight drove the people in an ever-thickening throng away from the {3} and along the northward-running roads. By midday a Martian had been seen at Barnes, and a {4} of slowly sinking black smoke drove along the Thames and across the flats of Lambeth, cutting off all escape over the bridges in its sluggish advance. Another bank drove over Ealing, and surrounded a little island of survivors on Castle Hill, alive, but unable to {5}. After a fruitless {6} to get aboard a North-Western train at Chalk Farm, the engines of the trains that had loaded in the goods yard there ploughed through shrieking people, and a dozen stalwart men fought to keep the crowd from crushing the driver against his furnace. My brother emerged upon the Chalk Farm road, dodged across through a hurrying swarm of vehicles, and had the luck to arrive at a cycle shop. The front tyre of the machine he got was {7} in dragging it through the window, but he got up and off, notwithstanding, with no further injury than a cut wrist. The steep foot of Haverstock Hill was impassable owing to several overturned {8}, and my brother struck into Belsize Road. So he got out of the fury of the panic, and, skirting the Edgware Road, reached Edgware about seven, fasting and wearied, but well ahead of the crowd. He was passed by a number of {9}, some horsemen, and two motor cars. People crowded on the pavement and in the doorways and windows, staring {10} at this extraordinary procession of fugitives that was beginning. He {11} in getting some food at an inn. For a time he {12} in Edgware, stood staring on the front path, not knowing what next to do. There was no fresh news of the {13} from Mars. At that time the road was crowded, but as yet far from {14}. It was perhaps a vague idea of making his way to Chelmsford, where some {15} of his lived, that at last induced my brother to strike into a quiet lane running eastward. Presently he came upon a stile, and, {16} it, followed a footpath northeastward. He passed near several farm-houses and some little places whose names were not {17} to him. In a grass lane towards High Barnet, he happened upon the two ladies who became his fellow-travellers. He came upon them {18} in time to save them.","gaps":[["trains",2],["desperately",3],["infuriated",3],["stations",4],["cloud",1],["escape",3],["struggle",3],["punctured",1],["vehicles",2],["cyclists",3],["astonished",3],["succeeded",3],["remained",3],["invaders",3],["congested",3],["friends",2],["crossed",2],["familiar",3],["just",1]],"group":"From her CEM tests"},
+ {"title":"A Soldier’s Diary, 1917","text":"14 March 1917. The rain has not stopped for three days and the water in our trench is up to our knees. Last night was so freezing that I lay awake {0} until dawn, and breakfast was the same tired rations as always: hard biscuits and a tin of cold beef. Just after midday the {1} warned us to stay on high alert because a raid was expected. I spent four hours peering out across No Man’s Land, that {2} stretch of mud and broken wire. Nothing moved except a few rats {3} among the shell holes. The {4} was almost worse than the fear. When at last we were told to stand down, I was {5} to find my hands still shaking. 16 March 1917. I must {6}, dear diary, for my gloomy words the other day. This morning a {7} of parcels arrived from home and the whole platoon cheered. My sister had sent a pair of thick gloves and a letter full of news from the village. It is hard to put my {8} into words, but reading it lifted my mood for hours. Tommy was quite {9} of the gloves, so I let him borrow one while he cleaned his helmet. Perhaps tomorrow will be {10}. Even in this {11} corner of France, a little kindness goes a long way.","gaps":[["shivering",2],["officers",3],["desolate",3],["scavenging",2],["boredom",3],["ashamed",3],["apologise",2],["delivery",3],["feelings",3],["jealous",3],["better",3],["godforsaken",3]],"group":"From her CEM tests"},
+ {"title":"Mermaids","text":"Mermaids, it seems, are {0} these days. It is almost {1} to visit a seaside town without spotting these shimmering creatures on postcards, mugs and T-shirts. They have become a symbol of fantasy and freedom, a fact {2} by toy makers and advertisers alike. Yet for hundreds of years, sailors took them seriously. As late as the eighteenth century, reports of mermaids were a matter of real {3}. Learned men wrote scholarly books on the subject, and an {4} trade in mermaid curiosities grew up in port cities around the world. One showman was {5} for one of the most famous hoaxes of all. He put a {6} mermaid in a glass case, and huge crowds paid to see it. The craze {7} in a grand tour of several cities but, quite counter to his hopes, sharp-eyed visitors soon spotted the stitching where a monkey had been joined to a fish. Naturalists began {8} every report closely. They were {9} to answer a simple question: could any real animal qualify as a mermaid? Some people even believed that dried mermaid scales were a powerful {10} in medicines. Others argued that sailors had really seen manatees or seals, which {11} warm coastal waters. These gentle {12} mammals, seen from a distance, might easily fool a tired sailor. Why does this {13} matter? It reminds us how {14} the sea was to people’s lives. Mermaids also had a long history: {15} writers had told of sirens luring ships onto the rocks. Over time the stories varied enormously, from beautiful singers to {16} fish-tailed figures carved on the front of ships.","gaps":[["everywhere",5],["impossible",3],["exploited",3],["contention",3],["international",3],["responsible",3],["supposed",3],["culminated",3],["examining",3],["attempting",3],["ingredient",4],["inhabited",3],["aquatic",2],["point",2],["important",3],["classical",3],["colourful",3]],"group":"From her CEM tests"},
+ {"title":"The Great Valdini","text":"Over the years, interest in travelling circuses has {0} sharply, and nowadays few towns ever see one. But when the Great Valdini came to our village, he {1} the imagination of everyone. People queued for tickets from dawn, and the excitement was {2} by bright posters pasted on every wall. On the opening night, his famous tightrope was on {3} in the middle of the field. Children who had {4} in the afternoon parade stood amazed as he climbed the ladder, his red cape shown off prominently. He answered {5} from the crowd with a wink. Beside the ring lay his old dog, so thin it looked almost {6}, yet it never took its attention off its master. Valdini claimed he had been {7} all day so that he would be light on the wire, and he stood sipping a glass of water before he began. A row of {8}, all local schoolteachers, strangely enough, had been chosen to check that there was no secret safety net. It was only a formality, really, because everyone knew that under no {9} would Valdini use one. He would never be {10} to, he said, not even by the mayor himself.","gaps":[["declined",3],["captured",3],["heightened",3],["display",3],["participated",3],["questions",3],["emaciated",3],["fasting",3],["observers",3],["circumstances",3],["compelled",3]],"group":"From her CEM tests"}
+];
+
+const EXPL = {
+ "brush":"A tool with bristles for painting.",
+ "burden":"A heavy load or a worry.",
+ "surveyed":"Looked over the whole of something.",
+ "multiplied":"Grew in number. y changes to i before -ed.",
+ "inspiration":"A sudden brilliant idea.",
+ "calmly":"Quietly, without fuss. Silent l.",
+ "ridicule":"Being laughed at and mocked.",
+ "steamboat":"A boat powered by a steam engine.",
+ "heed":"Attention. “Paid no heed” means ignored.",
+ "contemplated":"Looked at thoughtfully.",
+ "effect":"The result. Not “affect” (to change something).",
+ "altered":"Changed.",
+ "privilege":"A special right or treat. Spelling trap: -ilege, no d.",
+ "platform":"Where you wait for a train.",
+ "quickly":"Fast.",
+ "might":"Strength. “With all her might” = as hard as she could.",
+ "blankly":"Without understanding, with an empty look.",
+ "den":"A wild animal’s home.",
+ "freckled":"Covered with small brown spots.",
+ "shabby":"Old and worn out. Double b.",
+ "peculiarly":"Unusually, strangely.",
+ "imagining":"Picturing in the mind.",
+ "chattered":"Talked quickly and a lot. Double t.",
+ "moonshine":"Moonlight.",
+ "awkwardly":"Clumsily, not at ease.",
+ "mistake":"An error.",
+ "dismayed":"Upset and worried by something bad. Clue: half his bees had died.",
+ "sluggish":"Slow and lacking energy. Clue: “weak and …”.",
+ "dramatically":"By a large, sudden amount. Says how much they fell, so -ly.",
+ "pesticides":"Chemicals sprayed on crops to kill insects and pests.",
+ "feed":"Eat. Clue: “fewer places to …”.",
+ "pollinate":"Carry pollen from flower to flower so plants can make fruit.",
+ "fail":"Not grow properly; go wrong.",
+ "meadow":"A field of grass and wild flowers.",
+ "pledged":"Promised seriously.",
+ "sanctuary":"A safe place. Spelling: -uary.",
+ "difference":"A change that matters. “Make a difference” is a fixed phrase. Double f.",
+ "cautiously":"Carefully, without getting too excited. Spelling: -tious-ly.",
+ "astonish":"Amaze greatly.",
+ "embedded":"Fixed firmly inside something. Double d.",
+ "skeleton":"All the bones of a body.",
+ "fearsome":"Frightening to look at.",
+ "survive":"Stay alive; get by.",
+ "hazardous":"Dangerous. Clue: the next sentences describe the dangers.",
+ "collapse":"Fall down suddenly. Double l.",
+ "buried":"Covered over, under earth or rock. Clue: “landslide”.",
+ "continued":"Carried on.",
+ "credit":"Praise and recognition for something you did.",
+ "mentioning":"Saying or writing someone’s name. After “without”, -ing.",
+ "pioneers":"The first people to do something new.",
+ "explored":"Travelled through to find out about.",
+ "total":"Complete.",
+ "flatten":"Squash flat. Double t.",
+ "environment":"The surroundings a creature lives in. Spelling: environ-ment.",
+ "cope":"Deal with something difficult.",
+ "torches":"Lights you carry. Plural.",
+ "attract":"Draw in. Double t.",
+ "confuse":"Muddle; make it hard to think clearly.",
+ "scarce":"In short supply; hard to find.",
+ "rarely":"Not often.",
+ "identified":"Recognised and named. y changes to i before -ed.",
+ "investigate":"Look into carefully to find out more.",
+ "thrilling":"Very exciting. Double l.",
+ "gigantic":"Huge.",
+ "hurl":"Throw hard.",
+ "dangerous":"Likely to cause harm. Clue: “safety bicycle”.",
+ "comfortable":"Pleasant and easy, not painful. Spelling: com-fort-able.",
+ "ticket":"A pass you pay for to travel. Spelling: -ck-.",
+ "thousands":"Very many; plural of thousand.",
+ "freedom":"Being free to do what you want.",
+ "independently":"On their own, without help. Ends -ently.",
+ "critics":"People who disapprove and complain.",
+ "objections":"Reasons for being against something.",
+ "popular":"Liked or used by many people.",
+ "campaign":"An organised effort to achieve something. Silent g: cam-paign.",
+ "expensive":"Costing a lot of money.",
+ "shock":"A sudden upsetting surprise.",
+ "organised":"Planned and set up. British spelling ends -ised.",
+ "described":"Told what something was like.",
+ "elderly":"Old.",
+ "received":"Got. Spelling: e before i after c.",
+ "unanimously":"With everyone agreeing. Ends -ously.",
+ "lower":"Make smaller or less.",
+ "overjoyed":"Extremely happy.",
+ "voices":"Here, opinions that are heard.",
+ "noticeable":"Easy to notice. Keeps the e: notice + able.",
+ "attracting":"Drawing towards him. After “avoid”, the word takes -ing.",
+ "enigmatic":"Mysterious and hard to understand. Clue: “little was known”.",
+ "doubtful":"Uncertain. Silent b: dou-b-tful.",
+ "merchant":"A trader who buys and sells goods.",
+ "lavish":"Spending a lot, very generously. Clue: “nor, on the contrary” sets up an opposite pair.",
+ "avaricious":"Greedy for money. The opposite of lavish. Ends -icious.",
+ "benevolent":"Kind and wanting to do good. bene- means “good”.",
+ "anonymously":"Without giving his name. Says how he gave, so -ly.",
+ "communicative":"Willing to talk. “The least communicative” = he hardly talked.",
+ "taciturn":"Saying very little. Clue: “He talked very little”.",
+ "observation":"Being watched or noticed. Ends -tion.",
+ "puzzled":"Confused. Double z. Clue: he never changed his routine.",
+ "mathematically":"Exactly, precisely, like a sum. Ends -ically.",
+ "dismissed":"Sacked from a job. Double s twice: dis-missed.",
+ "hapless":"Unlucky. -less means “without” (without luck).",
+ "successor":"The person who comes next to take over. Double c, double s.",
+ "parade":"Soldiers lined up for inspection.",
+ "complicated":"Having many parts; not simple.",
+ "custom":"A usual habit or way of doing things.",
+ "possibility":"A chance that something could happen. Ends -ibility.",
+ "wandering":"Walking about with no fixed route.",
+ "sombre":"Dark and gloomy. British spelling ends -re.",
+ "penetrating":"Getting right through; piercing.",
+ "twilight":"The dim light after sunset.",
+ "saddened":"Made sad. Double d before -ened.",
+ "humbled":"Made to feel less important.",
+ "consciousness":"Awareness. Spelling trap: con-sc-ious-ness.",
+ "inferiority":"Being less good or less strong than others. Opposite: superiority.",
+ "adjoined":"Was next to and joined on to. Clue: one room beside another.",
+ "possessed":"Took or owned. Spelling trap: double s twice.",
+ "volume":"A book, especially one of a set.",
+ "drapery":"Cloth hung in folds, like curtains.",
+ "separating":"Keeping apart. Spelling trap: sep-a-rate, not seperate.",
+ "intervals":"Gaps between times. “At intervals” means every so often.",
+ "aspect":"The look or appearance of something.",
+ "incessant":"Never stopping. Double s.",
+ "lamentable":"Sad and mournful. From “lament”, to mourn.",
+ "affection":"Love and liking. Double f.",
+ "bullied":"Was cruel to a weaker person. y changes to i before -ed.",
+ "continually":"Again and again, all the time. Double l.",
+ "reckoned":"Worked out; guessed. Spelling: -ck-.",
+ "fastened":"Tied firmly. Silent t: fas-tened.",
+ "manner":"Way. “In the same manner” = in the same way. Not “manor” (a big house).",
+ "likewise":"Also, in the same way.",
+ "slender":"Thin.",
+ "offended":"Hurt or annoyed. Here, the bright light hurt his eyes.",
+ "posture":"The position of the body.",
+ "perceived":"Noticed or realised. Spelling: e before i after c.",
+ "quiver":"A case for carrying arrows. Clue: “bow and arrow”.",
+ "conjectured":"Guessed. Clue: written in brackets because he couldn’t see them.",
+ "utmost":"Greatest possible.",
+ "leaping":"Jumping.",
+ "ventured":"Dared to go. Clue: the others had run away.",
+ "admiration":"Wonder and respect.",
+ "shrill":"High-pitched and piercing. Double l.",
+ "distinct":"Clear and easy to hear.",
+ "repeated":"Said again.",
+ "bewildered":"Very confused. be + wilder + ed.",
+ "uneasiness":"Worry and discomfort. y changes to i: uneasy → uneasiness.",
+ "wrench":"Pull with a hard twist. Silent w.",
+ "nightmare":"A frightening dream. Silent gh.",
+ "confusion":"A muddled mess. Ends -sion.",
+ "peril":"Great danger.",
+ "imperative":"Absolutely necessary.",
+ "constantly":"All the time.",
+ "savages":"Fierce, wild people or animals.",
+ "glowing":"Shining softly.",
+ "bombarded":"Attacked with lots of things thrown.",
+ "utensils":"Kitchen tools such as pans and spoons.",
+ "consternation":"Shocked confusion.",
+ "ignominiously":"In a shameful, embarrassing way.",
+ "venom":"Poison; here, nasty force.",
+ "wounded":"Injured. Spelling: -ound-.",
+ "forlorn":"Lonely and sad.",
+ "confidently":"Sure of himself. Says how he chose, so -ly.",
+ "selected":"Chose.",
+ "proceeded":"Went on to do. Spelling trap: -ceed.",
+ "confined":"Small and enclosed.",
+ "arduous":"Very hard and tiring. Spelling: -uous.",
+ "soundly":"Deeply, well.",
+ "wrestled":"Struggled with. Silent w and silent t.",
+ "ambition":"A big goal or dream. Ends -tion.",
+ "continent":"A huge area of land, like Antarctica or Africa.",
+ "formidable":"Huge and frightening; very hard to achieve.",
+ "helpless":"Unable to do anything. -less means “without”.",
+ "immense":"Enormous. Double m.",
+ "stranded":"Stuck with no way out.",
+ "floe":"A sheet of floating ice. Not “flow”.",
+ "provisions":"Supplies of food and equipment.",
+ "celebrated":"Famous and praised.",
+ "famished":"Extremely hungry.",
+ "harrowing":"Very upsetting and frightening. Double r.",
+ "uninhabited":"Where no one lives. un + inhabited.",
+ "companions":"People you travel with.",
+ "turbulent":"Rough and stormy.",
+ "towering":"Very tall.",
+ "gruelling":"Exhausting. British spelling: double l.",
+ "Remarkably":"Amazingly. Capital R: it starts the sentence.",
+ "leadership":"How someone leads a group.",
+ "resilience":"Being able to recover from hard times.",
+ "eventually":"In the end, after a long time. Double l.",
+ "intact":"Whole, not broken.",
+ "exhausted":"Used up completely. Silent h: ex-h-austed.",
+ "plundered":"Robbed. Clue: “by robbers”.",
+ "convinced":"Completely sure.",
+ "pharaoh":"A king of ancient Egypt. Spelling trap: ph- and -aoh.",
+ "undisturbed":"Not touched or moved. un + disturbed.",
+ "persistence":"Not giving up. Ends -ence.",
+ "flight":"A set of stairs or steps.",
+ "impatiently":"Unable to wait calmly.",
+ "chamber":"A room.",
+ "waver":"Flicker and shake.",
+ "adjusted":"Got used to. Silent d: ad-justed.",
+ "glint":"A small flash of light.",
+ "suspense":"The tense feeling of waiting to find out.",
+ "jewellery":"Rings and necklaces. British spelling: jewel + lery.",
+ "opulence":"Great wealth and luxury.",
+ "entombed":"Buried, shut inside a tomb.",
+ "magnificent":"Very beautiful and impressive.",
+ "treasures":"Valuable things.",
+ "meticulous":"Extremely careful and precise. Ends -ulous.",
+ "catalogued":"Listed and recorded. British spelling: -logue.",
+ "nonsense":"Not true; silly.",
+ "obscure":"Little known.",
+ "torrential":"Pouring very heavily. Ends -tial.",
+ "drought":"A long time with no rain. Spelling: -ought.",
+ "cascaded":"Poured down like a waterfall.",
+ "submerged":"Under water.",
+ "irony":"When the result is the opposite of what you’d expect.",
+ "devastated":"Destroyed. After “had been”, -ed.",
+ "wither":"Dry up and shrivel.",
+ "swept":"Carried away. The past of “sweep”.",
+ "evacuate":"Move people out of danger.",
+ "makeshift":"Temporary, put together quickly.",
+ "frequent":"Happening often.",
+ "atmosphere":"The air around the Earth. Spelling: -sphere.",
+ "moisture":"Wetness, water in the air.",
+ "intense":"Very strong.",
+ "deluges":"Heavy floods of rain.",
+ "predict":"Say what will happen in the future.",
+ "adapt":"Change to suit new conditions. Not “adopt”.",
+ "priority":"The most important thing.",
+ "financial":"To do with money.",
+ "urgently":"Very quickly, because it matters a lot.",
+ "population":"The number of people living in a place.",
+ "soared":"Rose very fast.",
+ "unusually":"More than normal. Double l.",
+ "fetid":"Smelling foul and rotten.",
+ "overpowering":"Too strong to bear.",
+ "stench":"A very bad smell.",
+ "futile":"Pointless; it didn’t work.",
+ "indignant":"Angry about something unfair.",
+ "demonstrated":"Showed, proved.",
+ "contaminated":"Made dirty or poisonous.",
+ "outbreaks":"Sudden starts of a disease.",
+ "calamity":"A disaster.",
+ "haste":"Speed.",
+ "scheme":"A plan. Spelling: sch-.",
+ "ingenious":"Very clever and inventive. Not “genuine”.",
+ "intercept":"Catch on the way.",
+ "thorough":"Careful and complete. Spelling: -ough.",
+ "foresight":"Planning for the future. fore + sight.",
+ "conceal":"Hide. Spelling: -ceal.",
+ "renowned":"Famous. Spelling: -owned.",
+ "discovered":"Found for the first time.",
+ "wildlife":"Wild animals and plants. One word: wild + life.",
+ "expedition":"A trip with a purpose, like exploring. Ends -tion.",
+ "admitted":"Said, a little reluctantly. Double t.",
+ "confirmed":"Said for certain that it is true.",
+ "genuine":"Real, not fake. Ends -ine.",
+ "expert":"Someone who knows a lot about a subject.",
+ "previously":"Before, earlier. Spelling: -ious-ly.",
+ "extraordinary":"Very unusual and amazing. extra + ordinary.",
+ "habitats":"The natural homes of animals and plants.",
+ "management":"The people in charge. Spelling: manage + ment, keep the e.",
+ "fenced":"Closed off with a fence.",
+ "protect":"Keep safe.",
+ "residents":"People who live in a place. A favourite newspaper word.",
+ "complained":"Said they were unhappy about something.",
+ "favourite":"Liked best. British spelling: -our-.",
+ "spokesperson":"Someone who speaks for an organisation. News articles use this word a lot.",
+ "measures":"Actions taken to deal with something.",
+ "temporary":"Lasting only a short time. Spelling trap: tem-por-ary.",
+ "exhibition":"A public show in a museum. Silent h: ex-hib-ition.",
+ "sparked":"Started, caused. “Sparked a debate” is a common news phrase.",
+ "debate":"A discussion between people who disagree.",
+ "announced":"Told everyone officially. Double n.",
+ "reduce":"Make smaller or less.",
+ "notorious":"Well known for something bad. Ends -ious.",
+ "essential":"Absolutely necessary. Double s, ends -tial.",
+ "unbearable":"Too bad to put up with. un + bear + able.",
+ "pollution":"Dirt and fumes in the air. Double l.",
+ "Opponents":"People against something. Double p. Capital O: start of a sentence.",
+ "determined":"Firmly decided.",
+ "ancient":"Very old. Spelling: -cient. “An” tells you it starts with a vowel.",
+ "woodland":"Land covered with trees.",
+ "endangered":"At risk of dying out.",
+ "replaced":"Put back with something new.",
+ "signatures":"People’s names written by hand.",
+ "petition":"A written request signed by many people.",
+ "meeting":"A gathering to discuss something.",
+ "opportunity":"A chance. Double p.",
+ "decision":"A choice that has been made. Ends -sion.",
+ "expected":"Thought likely to happen.",
+ "uncovered":"Found something hidden. un + covered.",
+ "immediately":"At once. Double m, keep the e: immediate-ly.",
+ "fragments":"Small broken pieces.",
+ "archaeologists":"Scientists who dig up the past. Spelling trap: arch-ae-ologists.",
+ "carefully":"With care. Double l: care-ful-ly.",
+ "astounded":"Amazed, shocked.",
+ "complete":"Whole, with nothing missing.",
+ "portrait":"A picture of a person.",
+ "remarkable":"Worth noticing; amazing.",
+ "excavation":"A dig to find buried things.",
+ "belonged":"Was owned by.",
+ "fascinated":"Extremely interested. Silent c: fas-cinated.",
+ "reports":"Written accounts of events.",
+ "transported":"Moved from one place to another.",
+ "restored":"Repaired to look as it once did.",
+ "view":"“On view” means where people can see it.",
+ "construction":"Building. con + struct + ion.",
+ "likely":"Probably going to happen.",
+ "delayed":"Made late. y stays before -ed.",
+ "playground":"The outdoor area where children play. One word.",
+ "uncomfortable":"Not at ease; feeling something is wrong. Un- means “not”. Ends -able.",
+ "choking":"Making it hard to breathe. Clue: “thick” air, smoke.",
+ "coughing":"Clearing the throat noisily. Spelling: -ough-.",
+ "restless":"Unable to keep still. -less means “without” (without rest).",
+ "breathe":"Take in air. The verb has an e on the end; “breath” is the noun.",
+ "crackling":"Small sharp snapping sounds, like a fire.",
+ "tremble":"Shake with fear. Ends -ble.",
+ "halters":"Ropes or straps round a horse’s head for leading it.",
+ "stamping":"Bringing feet down hard. Clue: frightened horses.",
+ "lantern":"A lamp you carry. Clue: it is dark.",
+ "hurry":"Rush. Double r.",
+ "frightened":"Scared. Spelling: -ight-.",
+ "foolish":"Silly, not sensible.",
+ "uncertain":"Not sure; unknown. Un- means “not”.",
+ "flickering":"Shining unsteadily, going bright and dim. Clue: red light from flames.",
+ "overhead":"Above. One word: over + head.",
+ "dreadful":"Terrible. dread + ful (one l).",
+ "cheery":"Bright and cheerful.",
+ "bridle":"The straps on a horse’s head, used to steer it. Not “bridal” (to do with a bride).",
+ "coaxing":"Gently persuading. Clue: “patting and …”.",
+ "habits":"Things you usually do. Plural.",
+ "scratch":"Rub with claws or nails. Spelling: -tch.",
+ "scuttled":"Ran with short quick steps. Double t.",
+ "burrow":"A hole an animal digs to live in. Double r.",
+ "ditch":"A narrow channel at the roadside. Spelling: -tch.",
+ "floating":"Resting on top of water.",
+ "clung":"Held on tightly. The past of “cling”.",
+ "revived":"Woke up again; came back to life.",
+ "draggled":"Wet, dirty and bedraggled. Double g.",
+ "funeral":"A ceremony for someone who has died. Clue: “a dead mongoose”.",
+ "wrapped":"Covered round. Silent w, double p.",
+ "sneezed":"A sudden burst of air from the nose.",
+ "frighten":"Scare. Spelling: -ight-.",
+ "curiosity":"Wanting to know or find out. Clue: “Run and find out”. Spelling drops the u: curi-osity.",
+ "motto":"A short saying that sums up a group’s beliefs. Double t.",
+ "cobra":"A poisonous snake with a hood.",
+ "balancing":"Keeping steady without falling.",
+ "wicked":"Evil. Spelling: -ck-.",
+ "expression":"The look on a face. Double s, ends -sion.",
+ "squeezing":"Pressing tightly; here, squeezing money out of people.",
+ "grasping":"Greedy, always grabbing for more.",
+ "clutching":"Holding on tightly. Spelling: -tch-.",
+ "generous":"Kind and giving freely. Scrooge is the opposite. Ends -ous.",
+ "solitary":"Alone; on his own. Clue: “secret”, “self-contained”.",
+ "features":"The parts of the face: eyes, nose, mouth.",
+ "shrivelled":"Shrunk and wrinkled. British spelling: double l.",
+ "stiffened":"Made stiff. Double f.",
+ "temperature":"How hot or cold something is. Spelling trap: tem-per-a-ture.",
+ "thaw":"Melt; warm up. Clue: “iced” the office.",
+ "influence":"Effect. “Little influence” means it made little difference.",
+ "intent":"Determined, focused on.",
+ "beggars":"People who ask for money in the street. Spelling: -ars.",
+ "implored":"Begged desperately.",
+ "inquired":"Asked. Spelling: qu after in-.",
+ "tug":"Pull hard.",
+ "wheezing":"Breathing noisily because of the cold.",
+ "clerk":"An office worker who writes and copies letters. Said “clark” in British English.",
+ "dismal":"Gloomy and miserable.",
+ "copying":"Writing out again. y stays before -ing.",
+ "suddenly":"All at once, without warning. Double d.",
+ "cutting":"A trench dug through a hill for a railway line.",
+ "herd":"A group of cattle. Not “heard” (with your ears).",
+ "rumble":"A deep, rolling sound.",
+ "thundering":"Very loud, like thunder.",
+ "breathless":"Out of breath. breath + less.",
+ "frightful":"Terrible. fright + ful.",
+ "accident":"Something bad that happens by chance. Double c.",
+ "remembered":"Thought of again.",
+ "flags":"Pieces of cloth used as signals.",
+ "distant":"Far away.",
+ "furiously":"With great speed and force. Spelling: furi-ously (no y).",
+ "frantically":"Wildly, in a panic. Ends -ically.",
+ "thundered":"Moved with a loud rumbling noise.",
+ "shudder":"A sudden shake. Double d.",
+ "fainted":"Collapsed, passing out for a moment.",
+ "plodding":"Walking slowly and heavily. After “came”, it ends -ing. Double d.",
+ "shoulder":"The top of the arm where it joins the body. Spelling: -oul-.",
+ "soiled":"Dirty, stained. Describes the coat.",
+ "scarred":"Marked with old wounds. Double r before -ed.",
+ "whistling":"Making a tune by blowing through your lips. Silent t: whis-tling.",
+ "appeared":"Came into view. Double p, then -eared.",
+ "lingering":"Staying a long time, taking it slowly. Clue: “drank slowly”.",
+ "signboard":"The sign hanging outside an inn. Silent g in “sign”.",
+ "situated":"Placed or located. “Pleasantly situated” means in a nice spot.",
+ "pity":"A shame; something sad. “The more was the pity” = more’s the pity.",
+ "threshold":"The step or strip of floor at a doorway. Spelling trap: only one h in the middle: thres-hold.",
+ "coarsely":"Roughly and rudely. Says how he spoke, so -ly. Not “coursely”.",
+ "accustomed":"Used to something. Double c.",
+ "obeyed":"Did what he was told to. Past form: -eyed.",
+ "silent":"Quiet, not talking. Clue: “would not speak”.",
+ "telescope":"A tube that makes faraway things look close. Clue: watching ships.",
+ "fierce":"Angry and frightening. Spelling: i before e.",
+ "stroll":"A slow, relaxed walk. Double l.",
+ "seafaring":"Who work or travel at sea, like sailors.",
+ "desirous":"Wanting something very much. Spelling: -ous.",
+ "melancholy":"Sad and gloomy. Spelling: -choly.",
+ "jagged":"With sharp, uneven points. Double g.",
+ "fantastic":"Strange, like something imagined. Clue: “in a dream”.",
+ "landscape":"The view of the land. Clue: “in a dream”, seen from far off.",
+ "eager":"Keen and excited. Clue: how much it meant to him.",
+ "dripping":"Letting drops fall. Double p before -ing.",
+ "mottled":"Covered with patches of different colours. Double t.",
+ "swiftly":"Quickly. Says how the stream gushed, so -ly.",
+ "roaring":"Making a loud, deep noise. Clue: “noisy stream”.",
+ "boulders":"Large rounded rocks. Spelling: -oul-.",
+ "erect":"Standing straight up.",
+ "statue":"A carved figure of a person. Clue: “upon its pedestal”.",
+ "convict":"A prisoner. Clue: “escaped from Princetown” (a prison).",
+ "warders":"Prison guards. Plural.",
+ "bleaker":"More bare, cold and miserable. Comparing, so it ends -er.",
+ "harsh":"Rough and unpleasant to look at.",
+ "depression":"A sunken hollow in the ground. Clue: “cup-like”.",
+ "stunted":"Small because they couldn’t grow properly. Clue: twisted by storms.",
+ "twisted":"Bent out of shape.",
+ "fury":"Wild, violent force or anger. Clue: storms.",
+ "crackled":"Made small sharp snapping sounds. Past tense, -ed.",
+ "fungi":"Mushrooms and toadstools. The plural of fungus.",
+ "startled":"Gave a sudden fright. Past tense.",
+ "penetrated":"Went deep into. Clue: “to where the light was less”.",
+ "crouched":"Bent down low. Spelling: -ouch-.",
+ "steadily":"At a constant, unstopping speed. -ly, with y changing to i.",
+ "indistinctly":"Not clearly. In- means “not”.",
+ "confronted":"Faced boldly. Clue: “turned and …”.",
+ "vanished":"Disappeared.",
+ "cheerfully":"In a happy, positive way. Double l: cheer-ful-ly.",
+ "hesitated":"Paused because unsure. Clue: then “braced himself”.",
+ "malice":"Wanting to do harm. Clue: “and hatred”.",
+ "pattering":"Quick, light tapping sounds. Double t.",
+ "delicate":"Soft and gentle. Clue: “so slight”.",
+ "rhythm":"A regular beat. Spelling trap: rh-y-th-m, no vowels except y.",
+ "aimlessly":"Without any plan or direction. Clue: “he knew not where”.",
+ "refuge":"Shelter from danger. “Took refuge” is a fixed phrase.",
+ "hollow":"An empty space inside something. Double l.",
+ "concealment":"Being hidden. Clue: listed with shelter and safety.",
+ "snuggle":"Curl up somewhere cosy. Double g.",
+ "trembling":"Shaking with fear. Clue: “panting and …”.",
+ "encountered":"Met, especially something unexpected or bad.",
+ "gust":"A sudden rush of wind.",
+ "loose":"Not tied or fixed. Don’t confuse with “lose”.",
+ "underneath":"Below something. One word.",
+ "covered":"Hidden under something. Clue: “by the leaves”.",
+ "curtain":"A hanging cloth that screens something. Spelling: -tain.",
+ "thump":"Beat heavily, like a heart.",
+ "excitement":"A thrilled, eager feeling. Spelling: exc-, then -ment.",
+ "fitted":"Was the right size and shape for. Double t.",
+ "slipped":"Moved quietly and quickly. Double p.",
+ "wonder":"Amazement. Clue: listed with excitement and delight.",
+ "mysterious":"Strange and secret. Spelling: -ious.",
+ "leafless":"Without leaves. -less means “without”.",
+ "matted":"Tangled together in a thick mass. Double t.",
+ "wintry":"Like winter: cold and dull. Spelling drops the e: wint-ry.",
+ "clumps":"Small groups growing close together.",
+ "tendrils":"Thin curling stems that climbing plants grab with.",
+ "crept":"Moved slowly. The past of “creep”.",
+ "hazy":"Blurry, misty.",
+ "whispered":"Spoke very quietly. Silent h: wh-.",
+ "flutter":"Flap quickly and lightly. Double t.",
+ "stirring":"Moving slightly. Double r before -ing.",
+ trains:"Railway carriages pulled by an engine. Clue: “railway lines”.",
+ desperately:"In a frantic, almost hopeless way. Says how they fought, so it ends -ly. Spelling: desp-er-ate-ly.",
+ trampled:"Walked over and crushed. After “being”, it ends -ed. Clue: “and crushed”.",
+ revolvers:"Handguns. Clue: “were fired”. Plural.",
+ infuriated:"Extremely angry. Clue: “exhausted and …”. Ends -ated.",
+ scuffling:"Fighting in a rough, messy way. Double f. After “were”, it ends -ing.",
+ throng:"A large crowd. Clue: “ever-thickening”.",
+ stations:"Where trains stop. Plural: there are several.",
+ cloud:"A cloud of smoke. An easy word: if it was wrong, check for rushing or running out of time.",
+ escape:"Get away. Clue: “unable to”.",
+ struggle:"A hard effort. Double g and ends -le.",
+ crushing:"Squashing. After “from”, the doing word takes -ing.",
+ punctured:"Got a hole in it, like a tyre. After “was”, it ends -ed.",
+ vehicles:"Cars, carts and carriages. Spelling trap: silent h, and -cles.",
+ cyclists:"People on bikes. Clue: he is on a bike too. Plural.",
+ astonished:"Very surprised. Says how they stared.",
+ succeeded:"Managed to do it. Double c and double e.",
+ remained:"Stayed. Past tense.",
+ invaders:"Attackers who enter a country. Clue: “from Mars”. Plural.",
+ congested:"Blocked with traffic. Clue: “crowded, but … far from”.",
+ friends:"People you like and know well. Spelling trap: i before e.",
+ crossed:"Went over. Double s, then -ed.",
+ passed:"Went by. Don’t confuse with “past”.",
+ familiar:"Well known. Spelling trap: -iliar, not -ilar.",
+ just:"Only just, barely. A tiny word: easy to miss under time pressure.",
+ freezing:"Very cold. Clue: “lay awake shivering”.",
+ shivering:"Shaking with cold. After “awake”, it ends -ing.",
+ rations:"The small amount of food given to soldiers. Clue: “biscuits and cold beef”.",
+ officers:"People in charge of soldiers. Plural.",
+ alert:"Ready and watchful. “On high alert” is a fixed phrase.",
+ Land:"“No Man’s Land” is the ground between two armies’ trenches. Capital L.",
+ desolate:"Empty, bleak and lifeless. Not “desperate”.",
+ scavenging:"Searching for leftover food. Clue: rats among shell holes.",
+ boredom:"The feeling of being bored. Clue: four hours with nothing moving.",
+ stand:"“Stand down” means you can stop being on guard.",
+ ashamed:"Embarrassed about yourself. Clue: hands still shaking.",
+ apologise:"Say sorry. British spelling ends -ise.",
+ delivery:"Things arriving, like post. Clue: “parcels arrived”.",
+ cheered:"Shouted with happiness. Past tense, -ed.",
+ feelings:"Emotions. Plural.",
+ mood:"How you feel. Double o.",
+ jealous:"Wanting what someone else has. Ends -ous.",
+ helmet:"Hard hat that soldiers wear.",
+ better:"Improved. Clue: “Perhaps tomorrow”.",
+ godforsaken:"Dismal and abandoned. One long word: god + forsaken.",
+ everywhere:"In every place. Clue: postcards, mugs, T-shirts.",
+ impossible:"Can’t be done. Ends -ible.",
+ creatures:"Living beings. Plural. Spelling: -ture.",
+ fantasy:"Imagination; things not real. Ends -asy.",
+ exploited:"Used to make money. Clue: toy makers and advertisers.",
+ century:"A hundred years. Clue: “eighteenth”.",
+ contention:"Disagreement or argument. Clue: “a matter of real …”. Ends -tion.",
+ scholarly:"Serious and learned. Ends -arly.",
+ international:"Between many countries. Clue: “around the world”.",
+ responsible:"The one who did it. Ends -ible.",
+ supposed:"Claimed but not proven. Clue: it was a hoax. Double p.",
+ culminated:"Reached its high point or end.",
+ counter:"“Counter to” means the opposite of.",
+ examining:"Looking at closely. After “began”, -ing.",
+ attempting:"Trying. Double t at the start: att-.",
+ qualify:"Count as, by meeting the rules.",
+ ingredient:"One part of a mixture. “An” tells you it starts with a vowel.",
+ inhabited:"Lived in. Past tense, -ed.",
+ aquatic:"Living in water. Aqua means water.",
+ point:"A fact or idea being made.",
+ important:"Mattering a lot.",
+ history:"The past story of something.",
+ classical:"From ancient Greece and Rome.",
+ varied:"Were different from each other. y changes to i before -ed.",
+ colourful:"Bright with colours. British spelling: -our-.",
+ declined:"Gone down; become less.",
+ nowadays:"These days. One word.",
+ captured:"Caught. Past tense.",
+ tickets:"What you queue for to see a show. ck spelling. Plural.",
+ heightened:"Made stronger. ei, then -ghtened.",
+ display:"“On display” means shown for people to see.",
+ participated:"Took part. Clue: “in the parade”.",
+ amazed:"Very surprised. Describes the children, -ed.",
+ prominently:"In a way that’s easy to see. Says how, so -ly.",
+ questions:"Things you ask. Plural.",
+ emaciated:"Very thin from hunger. Ends -ciated.",
+ attention:"Its eyes and focus. Double t, ends -tion.",
+ fasting:"Going without food. Clue: “light on the wire”.",
+ sipping:"Drinking in small mouthfuls. Double p before -ing.",
+ observers:"People who watch closely. Plural.",
+ enough:"“Strangely enough” is a fixed phrase. Spelling: -ough.",
+ secret:"Hidden.",
+ formality:"Something done only because it’s the rule.",
+ circumstances:"Situations. “Under no circumstances” means never.",
+ compelled:"Forced. Double l, then -ed."
+};
+
+const MINE = new Set(["accustomed", "ambition", "ancient", "arduous", "attempting", "benevolent", "bewildered", "calamity", "coarsely", "coaxing", "confined", "consciousness", "constantly", "contention", "convict", "convinced", "custom", "declined", "determined", "devastated", "dismal", "distinct", "drought", "emaciated", "entombed", "essential", "famished", "fetid", "financial", "floe", "forlorn", "formidable", "fragments", "frantically", "hapless", "harrowing", "humbled", "immediately", "incessant", "ingenious", "meticulous", "obscure", "opulence", "penetrating", "perceived", "persistence", "pharaoh", "possessed", "renowned", "taciturn", "torrential", "turbulent"]);
+const CATS = {
+  blank:{name:"Left blank or unfinished", tip:"Never leave a gap empty. Do the easy ones first, then come back and guess the rest. Keep an eye on the clock: about 50 seconds per gap."},
+  form:{name:"Right word, wrong ending", tip:"Look at the words just before the gap. “Was” or “were” often needs -ed or -ing. “Three” or “a few” needs a plural -s. A word saying how something happens ends -ly."},
+  spelling:{name:"Nearly right: spelling slip", tip:"Say the word slowly in your head and count the boxes. Watch for double letters (succeeded, compelled) and tricky endings (-ible, -ous, -iliar)."},
+  meaning:{name:"Didn’t know the word", tip:"Reread the sentence before and after the gap. Ask what kind of word fits, then use the letters shown to narrow it down. In exam mode, if the word doesn’t fill in, try another word that fits."}
+};
+const PAIRS = [
+  ["Treasure Island","Shackleton’s Endurance"],
+  ["Whitewashing the Fence","Flood After Drought"],
+  ["Anne at the Station","Beetle Discovery"],
+  ["The Secret Garden","Saving the Bees"],
+  ["Fire at the Inn","Mary Anning"],
+  ["Rikki-tikki-tavi","Creatures of the Deep"],
+  ["Scrooge","The Great Stink"],
+  ["The Landslide","Bypass Row"],
+  ["Phileas Fogg","The Bicycle Craze"],
+  ["The Red-Room","Library Saved"],
+  ["Gulliver in Lilliput","Roman Mosaic"],
+  ["Buck’s First Night","Tutankhamun’s Tomb"]
+];
+const COMPLETED = ["The War of the Worlds","A Soldier’s Diary, 1917","Mermaids","The Great Valdini","The Hound of the Baskervilles","The Wild Wood"];
+(()=>{ const byT=Object.fromEntries(SETS.map(s=>[s.title,s])); const ordered=PAIRS.flat().concat(COMPLETED).map(t=>byT[t]); SETS.splice(0,SETS.length,...ordered); })();
+const isPair = i => i < PAIRS.length*2;
+const pairOf = i => Math.floor(i/2), partOf = i => i%2;
+const sessionScores = {};
+const TEST_TITLES = ["The War of the Worlds","A Soldier’s Diary, 1917","Mermaids","The Great Valdini"];
+const ORDER = ["blank","form","spelling","meaning"];
+const ENDINGS = ["ions","ing","ion","ed","es","ly","er","s"];
+const limitFor = i => SETS[i].gaps.length*50;
+
+const $ = id => document.getElementById(id);
+let cur = 0, timeLeft = 600, timer = null, started = false, checked = false;
+
+let ATTEMPTS = [];   // newest first, from the account store (or this device)
+let store = null;    // db collection when available
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k,v){ try { if (v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); } catch(e){} }
+function getBest(i){
+  const t=SETS[i].title, xs=ATTEMPTS.filter(a=>a.set===t).map(a=>a.score);
+  const local=lsGet("mlt-best-"+t); if (local!==null) xs.push(+local);
+  return xs.length ? Math.max(...xs) : null;
+}
+function setBest(i,v){ try { const b = getBest(i); if (b===null || v>+b) localStorage.setItem("mlt-best-"+SETS[i].title, v); } catch(e){} }
+
+function renderTabs(){
+  const box=$("tabs"); box.innerHTML="";
+  const sec=document.createElement("div"); sec.className="tabgrp";
+  sec.innerHTML=`<h3>Pairs · Part 1 story, Part 2 non-fiction</h3>`; const row=document.createElement("div"); row.className="tabrow";
+  PAIRS.forEach((pr,k)=>{
+    const a=2*k, b=2*k+1, ba=getBest(a), bb=getBest(b);
+    const btn=document.createElement("button");
+    btn.className="tab"+(ba!==null&&bb!==null?" done":""); btn.type="button"; btn.setAttribute("role","tab"); btn.setAttribute("aria-selected", isPair(cur) && pairOf(cur)===k);
+    const bests = (ba!==null||bb!==null) ? `<span class="b">best ${ba??"–"}/${SETS[a].gaps.length} · ${bb??"–"}/${SETS[b].gaps.length}</span>` : `<span class="b">${SETS[a].gaps.length} + ${SETS[b].gaps.length} gaps</span>`;
+    btn.innerHTML=`<span class="t">Pair ${k+1}</span><span class="b pr">${pr[0]} + ${pr[1]}</span>${bests}`;
+    btn.onclick=()=>{ cur=a; load(); }; row.appendChild(btn);
+  });
+  sec.appendChild(row); box.appendChild(sec);
+  const sec2=document.createElement("div"); sec2.className="tabgrp";
+  sec2.innerHTML=`<h3>Completed by Greta · kept for Arthur</h3>`; const row2=document.createElement("div"); row2.className="tabrow";
+  SETS.forEach((s,i)=>{ if (isPair(i)) return;
+    const b=document.createElement("button"); const best=getBest(i);
+    b.className="tab done"; b.type="button"; b.setAttribute("role","tab"); b.setAttribute("aria-selected", i===cur);
+    b.innerHTML=`<span class="t">${s.title}</span><span class="b">${s.gaps.length} gaps${best!==null?` · best ${best}/${s.gaps.length}`:""}</span>`;
+    b.onclick=()=>{ cur=i; load(); }; row2.appendChild(b);
+  });
+  sec2.appendChild(row2); box.appendChild(sec2);
+}
+function fmt(t){ const m=Math.floor(t/60), s=t%60; return m+":"+String(s).padStart(2,"0"); }
+function tick(){
+  timeLeft--; $("clock").textContent = fmt(Math.max(0,timeLeft));
+  $("clock").classList.toggle("low", timeLeft<=60);
+  if (timeLeft<=0){ check(true); }
+}
+function startTimer(){
+  if (started || checked) return;
+  started = true; $("hint").textContent = "Clock running. Easy ones first, then come back.";
+  timer = setInterval(tick, 1000);
+}
+function stopTimer(){ clearInterval(timer); timer=null; }
+
+function load(){
+  stopTimer(); started=false; checked=false; timeLeft=limitFor(cur);
+  $("clock").textContent = fmt(timeLeft); $("clock").classList.remove("low");
+  $("hint").textContent = "The clock starts when you type the first letter.";
+  $("checkBtn").disabled = false;
+  $("results").hidden = true; $("results").innerHTML="";
+  const s = SETS[cur];
+  $("setTitle").textContent = s.title;
+  const k=pairOf(cur);
+  $("parts").innerHTML = !isPair(cur) ? `<span class="part" aria-pressed="true">Completed set</span>` : [0,1].map(pt=>`<button type="button" class="part" aria-pressed="${partOf(cur)===pt}" data-i="${2*k+pt}">Pair ${k+1} · Part ${pt+1}: ${pt?"non-fiction":"story"}</button>`).join("");
+  $("parts").querySelectorAll(".part").forEach(b=>b.onclick=()=>{ cur=+b.dataset.i; load(); });
+  $("src").textContent = s.src || ""; $("src").hidden = !s.src;
+  const p = $("passage"); p.innerHTML="";
+  if (s.headline){ const hd=document.createElement("p"); hd.className="headline"; hd.textContent=s.headline; p.appendChild(hd); }
+  s.text.split(/\{(\d+)\}/).forEach((part,k)=>{
+    if (k%2===0){ p.appendChild(document.createTextNode(part)); return; }
+    const i = +part, [word,given] = s.gaps[i];
+    const g = document.createElement("span"); g.className="gap"; g.dataset.i=i;
+    let html = `<span class="num">${i+1}</span><span class="given">${word.slice(0,given)}</span>`;
+    if (word.length-given>2) g.classList.add("long");
+    for (let j=given;j<word.length;j++){
+      html += `<input class="box${j-given>=2?" rest":""}" id="b${cur}-${i}-${j}" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Gap ${i+1}, letter ${j+1}">`;
+    }
+    html += `<span class="more" aria-hidden="true">…</span><span class="fix" hidden></span>`;
+    g.innerHTML = html; p.appendChild(g);
+  });
+  let draft=null; try { draft=JSON.parse(lsGet("mlt-draft-"+s.title)||"null"); } catch(e){}
+  if (draft && draft.letters){
+    p.querySelectorAll(".box").forEach(b=>{ if (draft.letters[b.id.split("-").slice(1).join("-")]) b.value=draft.letters[b.id.split("-").slice(1).join("-")]; });
+    if (draft.timeLeft>0 && draft.timeLeft<timeLeft){ timeLeft=draft.timeLeft; $("clock").textContent=fmt(timeLeft); }
+    $("hint").textContent = "Picked up where you left off. The clock restarts when you type.";
+  }
+  applyMode();
+  p.querySelectorAll(".gap").forEach(markDone);
+  renderTabs();
+}
+function applyMode(){
+  const on=autoOn(); $("passage").classList.toggle("exam", on);
+  $("passage").querySelectorAll(".box.rest").forEach(b=>{ b.readOnly=on; b.tabIndex=on?-1:0; });
+}
+function markDone(g){
+  const boxes=[...g.querySelectorAll(".box")]; if (boxes.length<=2) return;
+  const [word,given]=SETS[cur].gaps[+g.dataset.i], want=word.slice(given).toLowerCase();
+  const ok = boxes[0].value===want[0] && boxes[1].value===want[1] && boxes.slice(2).every((b,k)=>b.value===want[k+2]);
+  g.classList.toggle("done", ok);
+  if (ok && autoOn()) boxes.slice(2).forEach(b=>b.classList.add("auto"));
+}
+function autoOn(){ return $("autoFill").checked; }
+function tryAutoFill(t){
+  if (!autoOn()) return false;
+  const g=t.closest(".gap"), boxes=[...g.querySelectorAll(".box")];
+  if (boxes.length<=2) return false;
+  const [word,given]=SETS[cur].gaps[+g.dataset.i];
+  const want=word.slice(given).toLowerCase();
+  if (boxes[0].value!==want[0] || boxes[1].value!==want[1]) return false;
+
+  boxes.slice(2).forEach((b,k)=>{ b.value=want[k+2]; b.classList.add("auto"); });
+  g.classList.add("done");
+  const all=[...document.querySelectorAll("#passage .box")], next=all[all.indexOf(boxes[boxes.length-1])+1];
+  if (next) next.focus({preventScroll:false}); else t.blur();
+  return true;
+}
+function saveDraft(){
+  if (checked) return;
+  const letters={}; document.querySelectorAll("#passage .box").forEach(b=>{ if(b.value) letters[b.id.split("-").slice(1).join("-")]=b.value; });
+  lsSet("mlt-draft-"+SETS[cur].title, Object.keys(letters).length ? JSON.stringify({letters,timeLeft}) : null);
+}
+
+$("passage").addEventListener("input", e=>{
+  const t=e.target; if (!t.classList.contains("box")) return;
+  const v = t.value.replace(/[^a-zA-Z]/g,"").slice(-1).toLowerCase();
+  t.value = v;
+  t.classList.remove("auto");
+  const g=t.closest(".gap");
+  if (autoOn() && !t.classList.contains("rest") && g.classList.contains("done")){
+    g.classList.remove("done"); g.querySelectorAll(".box.rest").forEach(b=>{ b.value=""; b.classList.remove("auto"); });
+  }
+  if (v){ startTimer();
+    if (!tryAutoFill(t)){ const n=t.nextElementSibling;
+      if (n && n.classList.contains("box") && !(autoOn() && n.classList.contains("rest") && !g.classList.contains("done"))) n.focus(); }
+  }
+  saveDraft();
+});
+window.addEventListener("pagehide", saveDraft);
+document.addEventListener("visibilitychange", ()=>{ if (document.hidden) saveDraft(); });
+$("passage").addEventListener("keydown", e=>{
+  const t=e.target; if (!t.classList.contains("box")) return;
+  const prev=t.previousElementSibling, next=t.nextElementSibling;
+  if (e.key==="Backspace" && !t.value && prev && prev.classList.contains("box")){ e.preventDefault(); prev.value=""; prev.focus(); }
+  else if (e.key==="ArrowLeft" && prev && prev.classList.contains("box")){ e.preventDefault(); prev.focus(); }
+  else if (e.key==="ArrowRight" && next && next.classList.contains("box")){ e.preventDefault(); next.focus(); }
+});
+
+function diagnose(word, given, letters){
+  const filled = letters.filter(Boolean).length;
+  if (!filled) return "blank";
+  const guess = word.slice(0,given) + letters.map(l=>l||"?").join("");
+  if (guess.toLowerCase()===word.toLowerCase()) return "correct";
+  if (filled<letters.length) return "blank";
+  const L = word.length, diffs=[];
+  for (let k=0;k<L;k++) if (guess[k].toLowerCase()!==word[k].toLowerCase()) diffs.push(k);
+  const we = ENDINGS.find(x=>word.endsWith(x)), ge = ENDINGS.find(x=>guess.endsWith(x));
+  if (we!==ge && diffs.every(p=>p>=L-4)) return "form";
+  if (diffs.length <= Math.max(2, Math.ceil(L/4))) return "spelling";
+  return "meaning";
+}
+
+function check(timeUp){
+  if (checked) return;
+  checked = true; stopTimer(); $("checkBtn").disabled = true;
+  const s = SETS[cur], res=[];
+  document.querySelectorAll("#passage .gap").forEach(g=>{
+    const i=+g.dataset.i, [word,given,w2]=s.gaps[i]; const why = w2 || EXPL[word] || "";
+    const boxes=[...g.querySelectorAll(".box")];
+    const letters=boxes.map(b=>b.value.toLowerCase());
+    let cat = diagnose(word,given,letters);
+    if (autoOn() && letters.length>2 && cat==="blank" && letters[0] && letters[1]) cat="meaning";
+    boxes.forEach(b=>b.disabled=true);
+    g.classList.add(cat==="correct"?"ok":"no");
+    if (cat!=="correct"){ const f=g.querySelector(".fix"); f.textContent="("+word+")"; f.hidden=false; }
+    res.push({i,word,given,why,cat,typed:word.slice(0,given)+letters.map(l=>l||"_").join("")});
+  });
+  const score = res.filter(r=>r.cat==="correct").length;
+  lsSet("mlt-draft-"+s.title, null);
+  const prevBest = getBest(cur);
+  const blanks = res.filter(r=>r.cat==="blank").length;
+  const won = starsFor({score, total:s.gaps.length, cats:{blank:blanks}}, prevBest);
+  const before = todayStars();
+  saveAttempt({set:s.title, group:s.group, score, total:s.gaps.length, seconds: started ? limitFor(cur)-Math.max(0,timeLeft) : null,
+    timeUp:!!timeUp, cats:Object.fromEntries(ORDER.map(c=>[c,res.filter(r=>r.cat===c).length])),
+    missed:res.filter(r=>r.cat!=="correct").map(r=>r.word), at:new Date().toISOString()});
+  const used = limitFor(cur) - Math.max(0,timeLeft); const n = s.gaps.length;
+  const counts = {}; ORDER.forEach(c=>counts[c]=res.filter(r=>r.cat===c).length);
+  const wrong = res.filter(r=>r.cat!=="correct");
+  const right = res.filter(r=>r.cat==="correct").map(r=>r.word);
+
+  let pace;
+  if (timeUp) pace = "Time ran out. Practise moving on from hard gaps sooner.";
+  else if (!started) pace = "Not timed.";
+  else pace = `Finished in ${fmt(used)}${used<240?" — quick! Make sure you reread before checking.":""}`;
+
+  const topCats = ORDER.filter(c=>counts[c]).sort((a,b)=>counts[b]-counts[a]);
+  let html = "";
+  if (timeUp) html += `<div class="banner">Time’s up. Here’s how it went.</div>`;
+  html += `<div class="score" style="${timeUp?"margin-top:14px":""}"><span class="big">${score}/${n}</span><span class="pace">${pace}</span></div>`;
+  if (topCats.length){
+    html += `<h2 style="margin-top:20px">Why marks were lost</h2><div class="cats">`;
+    topCats.forEach(c=>{ html += `<div class="cat c-${c}"><h3>${CATS[c].name}<span>${counts[c]}</span></h3><p>${CATS[c].tip}</p></div>`; });
+    html += `</div>`;
+    html += `<h2 style="margin-top:22px">Gap by gap</h2><ul class="review">`;
+    wrong.forEach(r=>{
+      html += `<li><span class="n">${r.i+1}</span><span class="words"><span class="hers">${r.typed}</span><span class="right">${r.word}</span>${MINE.has(r.word.toLowerCase())?'<span class="mine">★ her list</span>':""}<span class="chip c-${r.cat}">${CATS[r.cat].name}</span></span><span class="why">${r.why}</span></li>`;
+    });
+    html += `</ul>`;
+    if (right.length) html += `<h2 style="margin-top:22px">Got right: what they mean</h2><ul class="review">` + res.filter(r=>r.cat==="correct").map(r=>`<li><span class="n">${r.i+1}</span><span class="words"><span class="right">${r.word}</span>${MINE.has(r.word.toLowerCase())?'<span class="mine">★ her list</span>':""}</span><span class="why">${r.why}</span></li>`).join("") + `</ul>`;
+  } else {
+    html += `<p style="margin-top:14px">Full marks. Try the next set, or this one again faster.</p><h2 style="margin-top:22px">What they mean</h2><ul class="review">` + res.map(r=>`<li><span class="n">${r.i+1}</span><span class="words"><span class="right">${r.word}</span>${MINE.has(r.word.toLowerCase())?'<span class="mine">★ her list</span>':""}</span><span class="why">${r.why}</span></li>`).join("") + `</ul>`;
+  }
+  const after = before + won.length;
+  const dayMsg = before>=DAILY_GOAL ? " Today’s movie time is already unlocked." : after>=DAILY_GOAL ? " <b>That unlocks today’s 15 minutes of movie time!</b>" : ` ${DAILY_GOAL-after} more star${DAILY_GOAL-after===1?"":"s"} today for movie time.`;
+  const nextTip = !won.includes("no blanks") ? " Leave no blanks next time for an extra star." : !won.includes("70%+ right") ? " Get 70% right for another star." : !won.includes("90%+ right") ? " Get 90% right for another star." : "";
+  html = `<div class="earned">${won.length ? `<b>${"★".repeat(won.length)} ${won.length} star${won.length>1?"s":""}</b> for ${won.join(", ")}.` : "<b>No stars this time.</b>"}${dayMsg}${nextTip}</div>` + html;
+  sessionScores[s.title]={score, total:s.gaps.length};
+  const k=pairOf(cur);
+  if (!isPair(cur)){}
+  else if (partOf(cur)===0){
+    html += `<div class="nextrow"><button class="btn primary" type="button" id="goNext">Start Part 2: ${SETS[cur+1].title} →</button></div>`;
+  } else {
+    const p1=sessionScores[SETS[cur-1].title];
+    if (p1) html += `<div class="pairtotal">Pair ${k+1} total: <b>${p1.score+score}/${p1.total+s.gaps.length}</b> <span class="note">(story ${p1.score}/${p1.total}, non-fiction ${score}/${s.gaps.length})</span></div>`;
+    if (k+1<PAIRS.length) html += `<div class="nextrow"><button class="btn" type="button" id="goNext">Next: Pair ${k+2} →</button></div>`;
+  }
+  $("results").innerHTML = html; $("results").hidden = false;
+  const gn=$("goNext"); if (gn) gn.onclick=()=>{ cur = partOf(cur)===0 ? cur+1 : cur+1; load(); window.scrollTo({top:$("passage").getBoundingClientRect().top+scrollY-140, behavior:"auto"}); };
+  $("results").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"});
+}
+
+let REDEEMED = [];  // movie-time used
+let rewardStore = null;
+const DAILY_GOAL = 4, MINUTES = 15;
+function dayKey(iso){ const d=new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-CA"); }
+function starsFor(a, prevBest){
+  const why=[], pct = a.total ? a.score/a.total : 0;
+  if (((a.cats||{}).blank||0)===0) why.push("no blanks");
+  if (pct>=0.7) why.push("70%+ right");
+  if (pct>=0.9) why.push("90%+ right");
+  if (prevBest!==null && prevBest!==undefined && a.score>prevBest) why.push("new best");
+  return why;
+}
+function starsByDay(){
+  const best={}, days={}; let total=0;
+  ATTEMPTS.slice().sort((x,y)=>String(x.at).localeCompare(String(y.at))).forEach(a=>{
+    const n=starsFor(a, a.set in best ? best[a.set] : null).length;
+    best[a.set]=Math.max(best[a.set] ?? -1, a.score);
+    const k=dayKey(a.at); days[k]=(days[k]||0)+n; total+=n;
+  });
+  return {days,total};
+}
+function totalStars(){ return starsByDay().total; }
+function todayStars(){ return starsByDay().days[dayKey(new Date().toISOString())]||0; }
+function renderReward(){
+  const {days,total}=starsByDay(), today=dayKey(new Date().toISOString()), t=days[today]||0;
+  const unlocked=t>=DAILY_GOAL, used=REDEEMED.some(x=>dayKey(x.at)===today);
+  let meter=""; for(let k=0;k<DAILY_GOAL;k++) meter+=`<i class="${k<Math.min(t,DAILY_GOAL)?"on":""}">★</i>`;
+  let week=""; for(let k=6;k>=0;k--){ const d=new Date(); d.setDate(d.getDate()-k); const key=d.toLocaleDateString("en-CA");
+    const ok=(days[key]||0)>=DAILY_GOAL; week+=`<i class="${ok?"on":""}" title="${d.toLocaleDateString("en-GB",{weekday:"long"})}">${d.toLocaleDateString("en-GB",{weekday:"narrow"})}</i>`; }
+  const headline = used ? "Watched today ✓" : unlocked ? "15 min unlocked!" : `${DAILY_GOAL-t} more star${DAILY_GOAL-t===1?"":"s"} today`;
+  const sub = used ? "Today’s movie time is used. New stars tomorrow." : unlocked ? "Today’s movie time is ready." : `for today’s 15 minutes of movie time`;
+  $("reward").innerHTML=`<div><div class="big">${headline}</div><div class="sub2">${sub}</div>
+    <div class="meter" aria-label="${Math.min(t,DAILY_GOAL)} of ${DAILY_GOAL} stars today">${meter}</div>
+    <div class="sub2" style="margin-top:8px">Last 7 days · ${total} star${total===1?"":"s"} in total</div>
+    <div class="meter week">${week}</div></div>
+    <button class="btn" type="button" id="useBtn" ${unlocked&&!used?"":"disabled"}>Mark as watched</button>`;
+  $("useBtn").onclick=useMovieTime;
+}
+function useMovieTime(){
+  if (REDEEMED.some(x=>dayKey(x.at)===dayKey(new Date().toISOString()))) return;
+  const x={minutes:MINUTES, at:new Date().toISOString()};
+  if (rewardStore){ rewardStore.add(x).catch(()=>{ keepRedeemLocal(x); }); }
+  else keepRedeemLocal(x);
+}
+function keepRedeemLocal(x){
+  REDEEMED.push(x);
+  try { const xs=JSON.parse(lsGet("mlt-redeemed")||"[]"); xs.push(x); lsSet("mlt-redeemed", JSON.stringify(xs)); } catch(e){}
+  renderReward();
+}
+function saveAttempt(a){
+  if (store){
+    store.add(a).catch(()=>{ keepLocal(a); setSync(false); });
+  } else keepLocal(a);
+}
+function keepLocal(a){
+  ATTEMPTS.unshift(a);
+  try { const xs=JSON.parse(lsGet("mlt-attempts")||"[]"); xs.unshift(a); lsSet("mlt-attempts", JSON.stringify(xs.slice(0,300))); } catch(e){}
+  renderProgress(); renderTabs();
+}
+function setSync(ok){
+  $("sync").innerHTML = ok ? "<b>Saved to your account</b> · same on phone, tablet and computer" : "Saved in this browser · use the backup code below to keep it safe";
+}
+function when(iso){
+  const d=new Date(iso); if (isNaN(d)) return "";
+  return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})+" "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+}
+function renderProgress(){
+  renderReward();
+  const A=ATTEMPTS; if (!A.length){ $("progBody").innerHTML=`<p class="note">No sets finished yet. Results appear here after each “Check answers”.</p>`; return; }
+  const sets=new Set(A.map(a=>a.set)).size;
+  const pct=Math.round(100*A.reduce((t,a)=>t+a.score,0)/A.reduce((t,a)=>t+a.total,0));
+  const recent=A.slice(0,5), recPct=Math.round(100*recent.reduce((t,a)=>t+a.score,0)/recent.reduce((t,a)=>t+a.total,0));
+  const tot={}; ORDER.forEach(c=>tot[c]=A.reduce((t,a)=>t+((a.cats||{})[c]||0),0)); const lost=ORDER.reduce((t,c)=>t+tot[c],0);
+  const latest=new Map(); A.forEach(a=>{ if(!latest.has(a.set)) latest.set(a.set,a); });
+  const revisit=[...new Set([...latest.values()].flatMap(a=>a.missed||[]))].sort();
+  let html=`<div class="stats">
+    <div class="stat"><div class="v">${A.length}</div><div class="k">sets finished</div></div>
+    <div class="stat"><div class="v">${sets}<span style="font-size:15px;color:var(--muted)">/${SETS.length}</span></div><div class="k">different passages</div></div>
+    <div class="stat"><div class="v">${pct}%</div><div class="k">overall score</div></div>
+    <div class="stat"><div class="v">${recPct}%</div><div class="k">last ${recent.length} set${recent.length>1?"s":""}</div></div></div>`;
+  if (lost){
+    html+=`<div><h3 style="margin:0 0 6px;font-size:15px">Where marks go</h3><div class="mixbar">`+ORDER.filter(c=>tot[c]).map(c=>`<span class="c-${c}" style="width:${100*tot[c]/lost}%"></span>`).join("")+`</div><div class="legend">`+ORDER.filter(c=>tot[c]).map(c=>`<span class="c-${c}"><i></i>${CATS[c].name} ${tot[c]}</span>`).join("")+`</div></div>`;
+  }
+  html+=`<div><h3 style="margin:0 0 4px;font-size:15px">Recent</h3><ul class="hist">`+A.slice(0,6).map(a=>`<li><span>${a.set}${a.timeUp?' <span class="note">· time ran out</span>':""}</span><span class="sc">${a.score}/${a.total}</span><span class="when">${when(a.at)}</span></li>`).join("")+`</ul></div>`;
+  if (revisit.length) html+=`<div><h3 style="margin:0 0 6px;font-size:15px">Words to revisit <span class="note" style="font-weight:400">(missed last time on each set)</span></h3><div class="revisit">`+revisit.map(w=>`<span>${w}</span>`).join("")+`</div></div>`;
+  $("progBody").innerHTML=html;
+}
+async function connectStore(){
+  try { ATTEMPTS = JSON.parse(lsGet("mlt-attempts")||"[]"); } catch(e){ ATTEMPTS=[]; }
+  try { REDEEMED = JSON.parse(lsGet("mlt-redeemed")||"[]"); } catch(e){ REDEEMED=[]; }
+  renderProgress(); renderTabs();
+  const db = window.claude && window.claude.use ? await window.claude.use("db").catch(()=>null) : null;
+  if (!db){ setSync(false); return; }
+  store = db.collection("attempts");
+  rewardStore = db.collection("rewards");
+  let localR=[]; try { localR=JSON.parse(lsGet("mlt-redeemed")||"[]"); } catch(e){}
+  lsSet("mlt-redeemed", null);
+  for (const x of localR){ try { await rewardStore.add(x); } catch(e){ keepRedeemLocal(x); } }
+  rewardStore.onSnapshot(snap=>{
+    let extra=[]; try { extra=JSON.parse(lsGet("mlt-redeemed")||"[]"); } catch(e){}
+    REDEEMED = snap.docs.map(d=>d.data()).filter(Boolean).concat(extra); renderReward();
+  }, ()=>{});
+  // move any attempts saved on this device before the account store was reachable
+  const pending = ATTEMPTS.slice(); lsSet("mlt-attempts", null);
+  for (const a of pending.reverse()){ try { await store.add(a); } catch(e){ keepLocal(a); } }
+  setSync(true);
+  store.orderBy("at","desc").limit(1000).onSnapshot(snap=>{
+    ATTEMPTS = snap.docs.map(d=>d.data()).filter(Boolean);
+    let extra=[]; try { extra=JSON.parse(lsGet("mlt-attempts")||"[]"); } catch(e){}
+    ATTEMPTS = extra.concat(ATTEMPTS);
+    renderProgress(); renderTabs();
+  }, ()=>{ setSync(false); });
+}
+
+function makeBackup(){
+  const data={v:1,a:ATTEMPTS,r:REDEEMED};
+  return "MLT1:"+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+}
+$("copyBackup").onclick=()=>{
+  const code=makeBackup(), ta=$("backupCode"); ta.value=code;
+  const done=()=>{ $("backupMsg").textContent=`Copied. ${ATTEMPTS.length} set${ATTEMPTS.length===1?"":"s"} saved in this code.`; };
+  const fallback=()=>{ ta.focus(); ta.select(); $("backupMsg").textContent="Code selected. Copy it with your device’s Copy option."; };
+  try { navigator.clipboard.writeText(code).then(done, fallback); } catch(e){ fallback(); }
+};
+$("restoreBackup").onclick=async()=>{
+  let data;
+  try { const t=$("backupCode").value.trim(); if(!t.startsWith("MLT1:")) throw 0; data=JSON.parse(decodeURIComponent(escape(atob(t.slice(5))))); }
+  catch(e){ $("backupMsg").textContent="That code isn’t complete. Paste the whole backup code, starting with MLT1:"; return; }
+  const key=a=>a.set+"|"+a.at, have=new Set(ATTEMPTS.map(key));
+  const newA=(data.a||[]).filter(a=>a && a.set && a.at && !have.has(key(a)));
+  const haveR=new Set(REDEEMED.map(x=>x.at)), newR=(data.r||[]).filter(x=>x && x.at && !haveR.has(x.at));
+  for (const a of newA){ if (store){ try { await store.add(a); continue; } catch(e){} } keepLocal(a); }
+  for (const x of newR){ if (rewardStore){ try { await rewardStore.add(x); continue; } catch(e){} } keepRedeemLocal(x); }
+  ATTEMPTS.sort((x,y)=>String(y.at).localeCompare(String(x.at)));
+  renderProgress(); renderTabs();
+  $("backupMsg").textContent = newA.length||newR.length ? `Restored ${newA.length} set${newA.length===1?"":"s"}.` : "Nothing new to restore. This device already has everything in that code.";
+};
+
+function buildGloss(){
+  const seen = new Map();
+  SETS.forEach(s=>s.gaps.forEach(([w,,x])=>{ const k=w.toLowerCase(); if(!seen.has(k)) seen.set(k, EXPL[w] || x); }));
+  const rows=[...seen.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+  $("glossBody").innerHTML = `<p class="note" style="margin:0 0 6px">${rows.length} words, A to Z. ★ marks words from her vocabulary list. Best used after a set, not before.</p><ul class="review" style="margin-top:0">` + rows.map(([w,x])=>`<li style="grid-template-columns:minmax(0,1fr)"><span class="words"><span class="right">${w}</span>${MINE.has(w)?'<span class="mine">★ her list</span>':""}</span><span class="why" style="grid-column:1">${x}</span></li>`).join("") + `</ul>`;
+}
+buildGloss();
+$("checkBtn").onclick = ()=>check(false);
+$("resetBtn").onclick = ()=>load();
+if (innerWidth < 700) $("tips").open = false;
+$("autoFill").checked = lsGet("mlt-autofill")!=="off";
+$("autoFill").addEventListener("change", ()=>{ lsSet("mlt-autofill", $("autoFill").checked?"on":"off"); applyMode(); });
+load();
+connectStore();
+</script>
+</body>
+</html>
