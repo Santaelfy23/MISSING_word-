@@ -56,6 +56,8 @@ details.tips[open] summary::after{content:"Hide"}
 .tab:focus-visible,.btn:focus-visible,.box:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .clock{font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums;padding:6px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line)}
+.pacepick{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.pacepick select{font:inherit;font-size:14px;color:var(--fg);background:var(--panel-2);border:1px solid var(--muted);border-radius:8px;padding:6px 8px}
 .clock.low{color:var(--bad);border-color:var(--bad)}
 .btns{display:flex;gap:8px;flex-wrap:wrap}
 .btn{font:inherit;font-weight:700;border-radius:9px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--fg)}
@@ -67,11 +69,11 @@ details.tips[open] summary::after{content:"Hide"}
 .gap{display:inline-flex;align-items:baseline;gap:2px;white-space:nowrap;position:relative;padding-left:0}
 .num{font-family:var(--mono);font-size:10.5px;color:var(--muted);align-self:flex-start;margin-right:1px;line-height:1}
 .given{font-family:var(--mono);font-weight:700;font-size:18px}
-.box{width:1.15em;height:1.5em;padding:0;text-align:center;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-bottom:2px solid var(--accent);border-radius:4px;vertical-align:baseline}
+.box{width:1.15em;height:1.5em;padding:0;text-align:center;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--fg);background:var(--panel-2);border:1.5px solid var(--muted);border-bottom:2px solid var(--accent);border-radius:4px;vertical-align:baseline}
 .box:disabled{opacity:1}
 .box.auto{color:var(--form);border-bottom-color:var(--form)}
 .more{display:none;font-family:var(--mono);color:var(--muted);margin-left:1px}
-.passage.exam .gap.long:not(.done):not(.ok):not(.no) .box.rest{opacity:.45;border-bottom-color:var(--line);pointer-events:none}
+.passage.exam .gap.long:not(.done):not(.ok):not(.no) .box.rest{background:transparent;border:1.5px dashed var(--muted);border-bottom:2px dashed var(--muted);pointer-events:none}
 .passage.exam .gap.done .box{border-color:var(--form)}
 .opt{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;margin-top:10px}
 .opt input{width:18px;height:18px;accent-color:var(--accent)}
@@ -128,6 +130,15 @@ details.tips[open] summary::after{content:"Hide"}
 .meter i.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .earned{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--panel-2);border:1px solid var(--accent)}
 .earned b{color:var(--accent)}
+.hintbox{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--panel-2);border:1px solid var(--form)}
+.hintbox h3{margin:0 0 6px;font-size:15px;color:var(--form)}
+.hintbox ul,.how{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.how{margin-top:6px;font-size:15px;color:var(--fg)}
+.how b{color:var(--muted);font-weight:700}
+.gap.hinted .num{color:var(--form);font-weight:700}
+.hinttag{font-family:var(--body);font-size:12px;color:var(--form);font-weight:700}
+.danger{border-color:var(--bad);color:var(--bad)}
+.confirm{margin-top:10px;padding:12px;border-radius:10px;border:1px solid var(--bad);background:var(--panel-2)}
 .backup summary{cursor:pointer;font-size:14px;color:var(--muted)}
 .backup textarea{width:100%;min-height:70px;margin-top:8px;font-family:var(--mono);font-size:12px;background:var(--panel-2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical}
 .backup .btns{margin-top:8px}
@@ -138,7 +149,7 @@ details.tips[open] summary::after{content:"Hide"}
 <div class="wrap">
   <header>
     <h1>Missing <em>Letters</em> Trainer</h1>
-    <p class="sub">Twelve pairs, like the real exam: Part 1 is a story and Part 2 is non-fiction, each with its own timer. Words from her own vocabulary list are marked ★ in the answers. The clock gives about 50 seconds per gap. Earn stars for good habits and swap them for movie time.</p>
+    <p class="sub">Twelve pairs, like the real exam: Part 1 is a story and Part 2 is non-fiction, each with its own timer. Words from her own vocabulary list are marked ★ in the answers. Pick a timer speed and step it up as she improves; exam pace matches the CEM mock (8 minutes for both passages). Earn stars for good habits and swap them for movie time.</p>
   </header>
 
   <details class="tips" id="tips" open>
@@ -157,7 +168,7 @@ details.tips[open] summary::after{content:"Hide"}
 
   <section class="card prog" id="progress">
     <div class="prog-head"><h2>Progress</h2><span class="sync" id="sync">Connecting…</span></div>
-    <p class="note" style="margin-top:-6px">Stars for each set: ★ no blanks, ★ 70% or more right, ★ 90% or more right, ★ beating your best on that set. Get 4 stars in a day to unlock 15 minutes of movie time that day.</p>
+    <p class="note" style="margin-top:-6px">Stars: ★ for attempting the set, then for each passage ★ no blanks and ★ 70% or more right (up to 5 per pair). Stars save up from day to day. 5 stars = 15 minutes of movie time, once a day.</p>
     <div class="reward" id="reward"></div>
     <div id="progBody"><p class="note">No sets finished yet. Results appear here after each “Check answers”.</p></div>
     <details class="backup" id="backup" open>
@@ -166,6 +177,11 @@ details.tips[open] summary::after{content:"Hide"}
       <textarea id="backupCode" spellcheck="false" placeholder="Backup code appears here, or paste one to restore"></textarea>
       <div class="btns"><button class="btn" type="button" id="copyBackup">Copy backup code</button><button class="btn" type="button" id="restoreBackup">Restore</button></div>
       <p class="note" id="backupMsg" style="margin-top:6px" aria-live="polite"></p>
+      <div class="btns" style="margin-top:12px"><button class="btn danger" type="button" id="wipeBtn">Reset for a new player</button></div>
+      <div class="confirm" id="wipeConfirm" hidden>
+        <p style="margin:0 0 8px">This clears all scores, stars and movie time on this page so someone else can start from blank. Copy a backup code first if you want to keep this progress.</p>
+        <div class="btns"><button class="btn danger" type="button" id="wipeYes">Yes, clear everything</button><button class="btn" type="button" id="wipeNo">Cancel</button></div>
+      </div>
     </details>
   </section>
 
@@ -175,16 +191,21 @@ details.tips[open] summary::after{content:"Hide"}
     <div class="bar">
       <div><div class="parts" id="parts"></div><h2 id="setTitle"></h2><p class="note" id="src" hidden style="margin-top:2px"></p></div>
       <div class="btns">
+        <label class="pacepick" for="paceSel">Timer
+          <select id="paceSel">${""}</select></label>
         <span class="clock" id="clock">10:00</span>
       </div>
     </div>
     <p class="note" id="hint" style="margin-top:8px">The clock starts when you type the first letter.</p>
+    <p class="note" id="paceMsg" style="margin-top:2px" aria-live="polite"></p>
     <label class="opt" for="autoFill"><input type="checkbox" id="autoFill"> Exam mode (like CEM Select): the boxes show the word’s length, but you only type the next two letters. If they’re right, the word fills in and you get the mark</label>
+    <div class="hintbox" id="hintBox" hidden aria-live="polite"></div>
     <div class="passage" id="passage"></div>
     <div class="bar" style="margin-top:18px">
       <div class="btns">
         <button class="btn primary" id="checkBtn" type="button">Check answers</button>
         <button class="btn" id="resetBtn" type="button">Start again</button>
+        <button class="btn" id="hintBtn" type="button">Hint (3 left)</button>
       </div>
     </div>
   </section>
@@ -793,8 +814,82 @@ const EXPL = {
 };
 
 const MINE = new Set(["accustomed", "ambition", "ancient", "arduous", "attempting", "benevolent", "bewildered", "calamity", "coarsely", "coaxing", "confined", "consciousness", "constantly", "contention", "convict", "convinced", "custom", "declined", "determined", "devastated", "dismal", "distinct", "drought", "emaciated", "entombed", "essential", "famished", "fetid", "financial", "floe", "forlorn", "formidable", "fragments", "frantically", "hapless", "harrowing", "humbled", "immediately", "incessant", "ingenious", "meticulous", "obscure", "opulence", "penetrating", "perceived", "persistence", "pharaoh", "possessed", "renowned", "taciturn", "torrential", "turbulent"]);
+const TAGS = {"plodding": "VING", "whistling": "VING", "appeared": "VPAST", "lingering": "VING", "situated": "A", "pity": "N", "threshold": "N", "accustomed": "A", "silent": "A", "telescope": "N", "fierce": "A", "seafaring": "A", "desirous": "A", "melancholy": "A", "eager": "A", "dripping": "A", "mottled": "A", "boulders": "NP", "statue": "N", "convict": "N", "warders": "NP", "bleaker": "AC", "harsh": "A", "depression": "N", "crackled": "VPAST", "penetrated": "VPAST", "steadily": "ADV", "indistinctly": "ADV", "confronted": "VPAST", "cheerfully": "ADV", "hesitated": "VPAST", "malice": "N", "pattering": "N", "delicate": "A", "rhythm": "N", "aimlessly": "ADV", "concealment": "N", "snuggle": "VB", "encountered": "VPP", "loose": "A", "underneath": "ADV", "curtain": "N", "excitement": "N", "fitted": "VPAST", "slipped": "VPAST", "mysterious": "A", "leafless": "A", "wintry": "A", "tendrils": "NP", "crept": "VPP", "hazy": "A", "whispered": "VPAST", "stirring": "VING", "uncomfortable": "A", "choking": "A", "coughing": "VING", "breathe": "VB", "crackling": "N", "tremble": "VB", "stamping": "VING", "frightened": "A", "uncertain": "A", "flickering": "VING", "cheery": "A", "bridle": "N", "coaxing": "VING", "habits": "NP", "scuttled": "VPAST", "burrow": "N", "floating": "VING", "draggled": "A", "funeral": "N", "wrapped": "VPAST", "curiosity": "N", "motto": "N", "cobra": "N", "expression": "N", "squeezing": "A", "generous": "A", "shrivelled": "VPAST", "temperature": "N", "influence": "N", "intent": "A", "implored": "VPAST", "tug": "VB", "wheezing": "VING", "dismal": "A", "suddenly": "ADV", "cutting": "N", "herd": "N", "thundering": "A", "breathless": "A", "frightful": "A", "remembered": "VPAST", "flags": "NP", "distant": "A", "furiously": "ADV", "frantically": "ADV", "shudder": "N", "fainted": "VPP", "discovered": "VPP", "expedition": "N", "admitted": "VPAST", "confirmed": "VPP", "previously": "ADV", "extraordinary": "A", "habitats": "NP", "management": "N", "residents": "NP", "complained": "VPP", "spokesperson": "N", "exhibition": "N", "sparked": "VPP", "announced": "VPAST", "essential": "A", "determined": "A", "ancient": "A", "signatures": "NP", "opportunity": "N", "decision": "N", "uncovered": "VPP", "immediately": "ADV", "archaeologists": "NP", "astounded": "VPAST", "remarkable": "A", "belonged": "VPAST", "fascinated": "VPP", "reports": "NP", "transported": "VPP", "construction": "N", "playground": "N", "noticeable": "A", "doubtful": "A", "merchant": "N", "benevolent": "A", "communicative": "A", "taciturn": "A", "observation": "N", "mathematically": "ADV", "hapless": "A", "complicated": "A", "custom": "N", "possibility": "N", "penetrating": "A", "consciousness": "N", "adjoined": "VPAST", "possessed": "VPAST", "separating": "VING", "intervals": "NP", "incessant": "A", "affection": "N", "continually": "ADV", "reckoned": "VPAST", "fastened": "VPP", "likewise": "ADV", "offended": "VPAST", "posture": "N", "perceived": "VPAST", "conjectured": "VPAST", "leaping": "VING", "distinct": "A", "repeated": "VPAST", "bewildered": "A", "wrench": "VB", "nightmare": "N", "confusion": "N", "constantly": "ADV", "savages": "NP", "consternation": "N", "wounded": "A", "forlorn": "A", "confidently": "ADV", "confined": "A", "arduous": "A", "ambition": "N", "formidable": "A", "helpless": "A", "immense": "A", "floe": "N", "celebrated": "A", "famished": "A", "harrowing": "A", "turbulent": "A", "towering": "A", "Remarkably": "ADV", "leadership": "N", "eventually": "ADV", "exhausted": "VPP", "convinced": "A", "persistence": "N", "flight": "N", "impatiently": "ADV", "chamber": "N", "adjusted": "VPAST", "suspense": "N", "jewellery": "N", "opulence": "N", "entombed": "VPP", "meticulous": "A", "catalogued": "VPP", "obscure": "A", "torrential": "A", "drought": "N", "submerged": "A", "devastated": "VPP", "wither": "VB", "swept": "VPP", "evacuate": "VB", "makeshift": "A", "frequent": "A", "atmosphere": "N", "deluges": "NP", "adapt": "VB", "priority": "N", "financial": "A", "urgently": "ADV", "population": "N", "fetid": "A", "overpowering": "A", "stench": "N", "futile": "A", "indignant": "A", "demonstrated": "VPP", "outbreaks": "NP", "calamity": "N", "scheme": "N", "ingenious": "A", "thorough": "A", "foresight": "N", "conceal": "VB", "renowned": "A", "dismayed": "A", "sluggish": "A", "dramatically": "ADV", "pesticides": "NP", "feed": "VB", "pollinate": "VPRES", "fail": "VB", "meadow": "N", "pledged": "VPP", "sanctuary": "N", "difference": "N", "cautiously": "ADV", "astonish": "VB", "embedded": "VPP", "skeleton": "N", "fearsome": "A", "survive": "VB", "hazardous": "A", "collapse": "VB", "buried": "VPAST", "continued": "VPAST", "credit": "N", "mentioning": "VING", "pioneers": "NP", "explored": "APP", "total": "A", "flatten": "VB", "environment": "N", "cope": "VB", "torches": "NP", "attract": "VB", "confuse": "VB", "scarce": "A", "rarely": "ADV", "identified": "VPP", "investigate": "VB", "thrilling": "A", "gigantic": "A", "hurl": "VB", "dangerous": "A", "comfortable": "A", "ticket": "N", "thousands": "NP", "freedom": "N", "independently": "ADV", "critics": "NP", "objections": "NP", "popular": "A", "campaign": "N", "expensive": "A", "shock": "N", "organised": "VPAST", "described": "VPAST", "elderly": "A", "received": "VPAST", "unanimously": "ADV", "lower": "VB", "overjoyed": "A", "voices": "NP", "brush": "N", "burden": "N", "surveyed": "VPAST", "multiplied": "VPAST", "inspiration": "N", "calmly": "ADV", "ridicule": "N", "steamboat": "N", "heed": "N", "contemplated": "VPAST", "effect": "N", "altered": "VPAST", "privilege": "N", "platform": "N", "quickly": "ADV", "might": "N", "blankly": "ADV", "den": "N", "freckled": "A", "shabby": "A", "peculiarly": "ADV", "imagining": "VING", "chattered": "VPAST", "moonshine": "N", "awkwardly": "ADV", "mistake": "N", "trains": "NP", "desperately": "ADV", "infuriated": "A", "stations": "NP", "cloud": "N", "escape": "VB", "struggle": "N", "punctured": "VPP", "vehicles": "NP", "cyclists": "NP", "astonished": "A", "succeeded": "VPAST", "remained": "VPAST", "invaders": "NP", "congested": "A", "friends": "NP", "crossed": "VPAST", "familiar": "A", "just": "ADV", "shivering": "VING", "officers": "NP", "desolate": "A", "scavenging": "VING", "boredom": "N", "ashamed": "A", "apologise": "VB", "delivery": "N", "feelings": "NP", "jealous": "A", "better": "AC", "godforsaken": "A", "everywhere": "ADV", "impossible": "A", "exploited": "VPP", "contention": "N", "international": "A", "responsible": "A", "supposed": "A", "culminated": "VPAST", "examining": "VING", "attempting": "VING", "ingredient": "N", "inhabited": "VPAST", "aquatic": "A", "point": "N", "important": "A", "classical": "A", "colourful": "A", "declined": "VPP", "captured": "VPAST", "heightened": "VPP", "display": "N", "participated": "VPP", "questions": "NP", "emaciated": "A", "fasting": "VING", "observers": "NP", "circumstances": "NP", "compelled": "VPP"};
+const CLUES = {"plodding": "He is “tall, strong, heavy” and dragging a sea-chest: how would a heavy man walk?", "whistling": "“to himself”: something you do with your lips to make a tune when you’re on your own.", "appeared": "Someone knocked, so what did the father do? He came to the door.", "situated": "“a pleasant … inn” describes where the inn is placed: a pleasant spot.", "pity": "“very little company, the more was the …”: little company is a shame, said in an old-fashioned way.", "threshold": "He threw the gold down at the doorway of the inn.", "accustomed": "“a man … to be obeyed”: someone used to giving orders.", "fierce": "He wouldn’t speak and blew through his nose “like a fog-horn”, so his look was angry and scary.", "seafaring": "He keeps watching the sea and asking about sailors: men who work at sea.", "desirous": "“to avoid them”: he was keen to keep away from them.", "ambition": "“nothing less than to cross the entire Antarctic”: a huge goal.", "formidable": "1,800 miles that “no human being had ever crossed”: a very hard, frightening goal.", "helpless": "The ship is trapped and drifting; the crew can do nothing.", "immense": "The pressure made the timbers “groan and split”, so it was huge.", "floe": "“drifting … with three small lifeboats”: a piece of floating ice they were stuck on.", "celebrated": "“survival stories of all time”: one of the most famous.", "famished": "“their diet reduced to seal and penguin meat”: very hungry.", "harrowing": "A week at sea in a tiny boat after their camp broke apart: terrifying.", "turbulent": "Sailing a tiny boat across the roughest ocean: wild and stormy.", "towering": "Waves you have to battle: very tall.", "Remarkably": "It’s amazing that “not a single life had been lost”. The comma after the gap shows it starts the sentence.", "leadership": "“a model of courage”: how he led his men.", "eventually": "The ship sank in 1915 but was found in 2022, a long time later.", "brush": "He has a bucket of whitewash; what do you paint with?", "burden": "“Thirty yards of board fence”: the job felt like a heavy load.", "surveyed": "“then … the vast stretch of fence”: he looked over all of it.", "multiplied": "Thinking of the fun he’d miss made his sorrows grow.", "inspiration": "“dark and hopeless moment” then something “burst upon him!”: a sudden brilliant idea.", "calmly": "His new plan is to look happy, so he works in a relaxed way.", "ridicule": "Tom was dreading being laughed at by Ben.", "steamboat": "Making a long whoop: he’s pretending to be a boat with a steam whistle.", "heed": "Tom ignores Ben: “paid no …”.", "contemplated": "“for a moment” before he spoke: he looked at Ben thoughtfully.", "effect": "“stepping back to note the …”: to see how the painting looked.", "altered": "“about to agree, but he … his mind”: he changed his mind.", "privilege": "Ben gives up his apple for the special right to paint.", "torrential": "“a month’s worth of rain … in just six hours”: very heavy rain.", "drought": "The ground was “baked hard” after the driest summer: no rain for a long time.", "submerged": "“under a metre of muddy water”: covered by water.", "devastated": "“by the heat”: the wheat was ruined.", "wither": "Soil cracking in the heat: crops dry up and die.", "swept": "Carried away by the flood: “… away in a single night”.", "evacuate": "“families from the worst-affected streets”: move them out of danger.", "makeshift": "A centre in a school, set up quickly for the night.", "frequent": "Extreme weather is “likely to become more …”: happening more often.", "atmosphere": "It “can hold more moisture”: the air around the Earth.", "deluges": "“dry spells followed by sudden …”: the opposite of dry spells, heavy rain.", "adapt": "Weather is changing, so communities will need to change too.", "priority": "“For now … is clearing up”: the most important job.", "financial": "Insurance claims and “support” from the government: money help.", "urgently": "“They need help”: very quickly.", "platform": "The far end of the station, where people wait for trains.", "quickly": "He’s shy of the girl, so he gets past her fast. “as … as possible”.", "might": "“with all her …”: as hard as she could.", "blankly": "He’d come for a boy and is confused: an empty look.", "den": "A lion’s home.", "freckled": "“small, white and thin” face with little brown spots.", "shabby": "An “old-fashioned” bag: worn and old.", "peculiarly": "“… clear, sweet voice”: unusually clear.", "imagining": "“all the things that might have stopped you”: picturing them in her head.", "chattered": "She talks on and on in a rush.", "moonshine": "“all white with blossom in the …”: the light at night.", "awkwardly": "Matthew is shy: he holds her hand clumsily.", "mistake": "He wanted a boy but got a girl: an error.", "discovered": "“not seen … for over fifty years has been …”: found.", "expedition": "“a school … last Tuesday”: a school trip.", "admitted": "“I thought it was a speck of dirt”: owning up to it.", "confirmed": "“that the beetle is a genuine find”: said it’s definitely true.", "previously": "“was … believed to have died out”: before now.", "extraordinary": "The beetle hadn’t been seen for fifty years: an amazing discovery. “an” shows a vowel start.", "habitats": "“on our own doorstep”: the natural homes of creatures nearby.", "management": "“The park’s … has now fenced off”: the people in charge.", "residents": "“not all … are pleased”: the people who live there.", "complained": "“that they can no longer use their favourite path”: they grumbled.", "spokesperson": "“for the council said”: someone who speaks for the council.", "exhibition": "“invited to the museum … will go on …”: a public show.", "loose": "Wind “swung aside” the ivy, so it wasn’t fixed down.", "underneath": "“covered by the leaves hanging over it”: something below them.", "curtain": "“loose and swinging”: like a hanging cloth.", "excitement": "“heart began to thump and her hands to shake … in her delight and …”: a feeling to pair with delight.", "fitted": "She drew out the key and it went into the keyhole.", "slipped": "She went through quietly and quickly, then shut the door.", "mysterious": "A secret garden: strange and unknown.", "leafless": "It’s winter: the stems have no leaves.", "wintry": "“grass of a … brown”: dull like winter.", "tendrils": "“swung down long …” from climbing roses: thin curling stems.", "crept": "“from one tree to another, making … bridges”: the roses spread slowly.", "hazy": "Thin grey branches spreading like a mantle: blurry and misty.", "whispered": "“How still it is!”: she speaks quietly so as not to break the stillness.", "stirring": "The robin “did not even flutter his wings”: he sat without moving.", "dramatically": "Bee numbers have fallen by a lot.", "pesticides": "“the use of … on farmland”: chemicals that kill insects.", "pollinate": "“a third of the food we eat”: bees carry pollen so plants make fruit.", "fail": "“Without them, many crops would …, and food prices would rise”: crops would not grow.", "meadow": "“of wild flowers on an empty patch of land”: a field.", "pledged": "“to stop mowing”: families promised.", "sanctuary": "“Every garden can become a little …”: a safe place for bees.", "difference": "“If we all do a small amount, together it makes a huge …”: fixed phrase.", "cautiously": "“It will take time” but he’s seen more bees: hopeful, but carefully.", "uncomfortable": "“though I hardly knew why”: something felt wrong.", "coughing": "The air is full of smoke: what does a horse do?", "breathe": "“full of smoke … I hardly knew how to …”.", "crackling": "“a low … and snapping”: the sound of fire.", "tremble": "“so strange that it made me … all over”: shake with fear.", "frightened": "“he frightened me still more”: the ostler was scared himself.", "uncertain": "“danger seemed to be all round”: nothing felt sure.", "cheery": "“quiet and …, as it always was”: James is calm and kind.", "bridle": "“on with your …, my boy”: what a horse wears on its head to be led.", "astonish": "A discovery that would amaze scientists.", "embedded": "The skull was stuck “in the crumbling cliffs”.", "skeleton": "“dug out the rest of the …”: the bones, more than five metres long.", "fearsome": "An ancient sea reptile: frightening.", "survive": "The family was poor, so selling fossils helped them get by.", "collapse": "“after winter storms”: cliffs are likely to fall down.", "continued": "“Despite these dangers, she … to make finds”: she carried on.", "credit": "“rarely given … for her work”: praise and recognition.", "mentioning": "“without even … her name”.", "pioneers": "“one of the … of fossil science”: the first people in a field.", "habits": "“rather like a little cat in his fur … like a weasel in his head and his …”: the way he behaves.", "scuttled": "“through the long grass”: ran with quick little steps.", "burrow": "“where he lived with his father and mother”: a mongoose’s home underground.", "floating": "Grass on flood water: lying on the top.", "draggled": "Washed out by a flood: wet and messy.", "wrapped": "“him in cotton wool”: they covered him round.", "motto": "“is ‘Run and find out’”: a family saying.", "cobra": "“spread hood of Nag”: a snake with a hood.", "expression": "“eyes that never change their …”: the look on the face.", "squeezing": "A list of greedy words follows: “wrenching, grasping, scraping, clutching”.", "generous": "“no steel had ever struck out … fire”: Scrooge never gave anything warm or kind.", "shrivelled": "“froze his old features, nipped his pointed nose, … his cheek”: the cold shrank it.", "temperature": "“iced his office in the summer”: how hot or cold he was.", "influence": "Heat and cold had little effect on him.", "intent": "Snow falling with a purpose: determined.", "implored": "“beggars … him to give them a penny”: begged.", "tug": "Dogs pulled their owners away from Scrooge.", "wheezing": "“cold, bleak, biting weather”: breathing noisily in the cold.", "dismal": "“little cell”: a gloomy room.", "suddenly": "“the tree is moving!”: an unexpected shout.", "cutting": "“the far side of the …”: the trench the railway runs through.", "herd": "“like a … of cattle”.", "thundering": "“with a rumble and a roar … fell … with a … crash”: very loud.", "breathless": "He has just watched the landslide: out of breath with shock.", "frightful": "“a most … accident”: terrible.", "remembered": "They needed something red: then Bobbie thought of the petticoats.", "flags": "Tied to sticks to wave at the train.", "distant": "“far away along the line”: the rumble came from far off.", "furiously": "The train came on fast and hard.", "frantically": "“waving both flags”: wildly, in a panic.", "shudder": "“stopped with a jar and a …”: a sudden shake.", "fainted": "“white and still, beside the line”: she collapsed.", "sparked": "“a heated debate”: the plans started an argument.", "announced": "“The council … last week”: told everyone officially.", "essential": "Supporters say the bypass is needed.", "determined": "Opponents are set on stopping it.", "ancient": "“woodland … home to badgers, owls”: very old. “an” shows a vowel start.", "signatures": "“more than three thousand … on a petition”: names.", "opportunity": "“both sides will have the … to share their views”: a chance.", "decision": "“A final … is expected”: the choice.", "noticeable": "“most … members … though he seemed always to avoid attracting attention”: easy to notice.", "doubtful": "“Certainly an Englishman, it was more … whether”: less certain.", "merchant": "“nor a gentleman farmer”: a job; a trader.", "benevolent": "“noble, useful or …”: a kind purpose.", "communicative": "“He talked very little”: the least talkative.", "observation": "“His daily habits were quite open to …”: anyone could watch them.", "mathematically": "“at hours … fixed”: exact, like a sum.", "hapless": "The servant was sacked for two degrees: unlucky.", "complicated": "The clock showed hours, minutes, seconds, days, months and years: very detailed.", "custom": "“his daily …”: his usual habit.", "possibility": "“There was no … of taking a walk”: no chance.", "penetrating": "“a rain so …”: rain that soaks right through.", "consciousness": "“humbled by the … of my physical inferiority”: being aware of it.", "possessed": "“I soon … myself of a volume”: she took hold of a book.", "separating": "“protecting, but not … me from the dreary November day”: the glass didn’t keep her apart from it.", "intervals": "“At …, while turning over the leaves”: every so often.", "incessant": "“rain sweeping away wildly”: rain that doesn’t stop.", "affection": "“not much … for his mother and sisters, and none at all for me”: love.", "continually": "“not two or three times in the week, nor once or twice in the day, but …”: all the time.", "campaign": "“led by a group of ten-year-olds”: an organised effort.", "expensive": "“too … to run”: cost too much.", "shock": "“The news came as a …”: an upsetting surprise.", "organised": "“wrote letters, made posters and … a sponsored read”: set it up.", "described": "“how the library had helped them”: told what it was like.", "elderly": "“after leaving school at fourteen”: an old man.", "received": "“… support from a famous children’s author”: got.", "unanimously": "All councillors voted the same way.", "lower": "Volunteers staffing it for free will reduce the costs.", "overjoyed": "The library was saved: very happy.", "voices": "“young people’s … really can make a difference”: their opinions being heard.", "reckoned": "“as I …, about nine hours”: worked it out roughly.", "fastened": "“arms and legs were strongly … on each side to the ground”: tied down.", "likewise": "“I … felt several slender cords”: also.", "offended": "“the sun began to grow hot, and the light … my eyes”: it hurt them.", "posture": "“in the … I lay”: the position of his body.", "perceived": "“Bending my eyes downwards … I … it to be a human creature”: he saw and realised.", "leaping": "“hurt by … from my sides upon the ground”: jumping.", "distinct": "“a shrill but … voice”: clear.", "repeated": "“the same words several times”: said again.", "bewildered": "“as the reader may believe … and in great uneasiness”: very confused.", "wrench": "“break the strings and … out the pegs”: pull out with a twist.", "uncovered": "Builders digging found a mosaic.", "immediately": "Work stopped as soon as tiles were seen.", "archaeologists": "“A team of …” who carefully brush away earth: scientists who dig up the past.", "astounded": "“What they found … them”: amazed them.", "remarkable": "“It is in … condition”: surprisingly good.", "belonged": "“to a wealthy family”: it was owned by them.", "fascinated": "“pupils had been … by the discovery”: very interested; crowds at the fence every break.", "reports": "“for the school newspaper”: news articles.", "transported": "“lifted and … to the county museum”: moved.", "construction": "“The … of the classroom is likely to be delayed”: building.", "playground": "Where at school would a villa lie under?", "nightmare": "“Every hour was filled with shock”: like a bad dream.", "confusion": "“All was … and action”: chaos.", "constantly": "“an imperative need to be … alert”: all the time.", "savages": "“who knew no law but the law of club and fang”: wild and fierce.", "consternation": "Things were thrown at him: shocked confusion.", "wounded": "“bit … into his … shoulder”: injured.", "forlorn": "“Miserable and …”: lonely and sad.", "confidently": "He now knew what to do, so he picked a spot sure of himself.", "confined": "“the heat from his body filled the … space”: a small hole.", "arduous": "“long and …”: hard and tiring.", "exhausted": "“every tomb … had long ago been found”: the valley was used up.", "convinced": "“that one pharaoh still lay undisturbed”: he was sure.", "persistence": "Five years of searching: not giving up.", "flight": "“a … of sixteen steps”: a set of stairs.", "impatiently": "Waiting “for almost three weeks”: eager to get on.", "chamber": "“hot air escaping from the …”: a room.", "adjusted": "“his eyes … to the light”: got used to it.", "suspense": "“unable to bear the … any longer”: the tension of waiting.", "jewellery": "Listed with chariots and board games: precious things you wear.", "opulence": "Gold everywhere: great wealth.", "entombed": "“within three coffins”: buried inside.", "meticulous": "Ten years of careful recording: extremely careful.", "catalogued": "“photographed, measured and …”: listed and recorded.", "obscure": "“once one of Egypt’s most … rulers, became the most famous”: the opposite of famous.", "desperately": "“fighting … for standing room”: in a frantic way.", "stations": "People fled away from where the trains were.", "cloud": "“of slowly sinking black smoke”.", "struggle": "“A fruitless … to get aboard”: a hard effort that failed.", "punctured": "The tyre got a hole when it was dragged through the window.", "vehicles": "“several overturned …”: carts and carriages.", "astonished": "People staring at the strange procession: amazed.", "succeeded": "“in getting some food”: he managed it.", "remained": "“For a time he … in Edgware”: he stayed.", "friends": "“where some … of his lived”: people he knew.", "crossed": "He came to a stile and went over it.", "familiar": "“whose names were not … to him”: he didn’t know them.", "just": "“… in time to save them”: only barely.", "shivering": "“so freezing that I lay awake”: shaking with cold.", "officers": "“warned us to stay on high alert”: the people in charge of soldiers.", "desolate": "“stretch of mud and broken wire”: empty and bleak.", "apologise": "“for my gloomy words the other day”: say sorry.", "feelings": "“hard to put my … into words”: emotions.", "jealous": "Tommy wanted the gloves too.", "godforsaken": "A miserable, abandoned corner of France at war.", "impossible": "“almost … to visit a seaside town without spotting” mermaids: they’re everywhere.", "responsible": "“for one of the most famous hoaxes”: he was the one who did it.", "culminated": "“in a grand tour”: the craze reached its peak.", "examining": "“every report closely”: looking at carefully.", "attempting": "“to answer a simple question”: trying.", "ingredient": "“a powerful … in medicines”: one part of a mixture.", "inhabited": "Seals “… warm coastal waters”: lived in.", "aquatic": "Manatees and seals: water animals.", "point": "“Why does this … matter?”: idea or fact.", "important": "“how … the sea was to people’s lives”: how much it mattered.", "classical": "Ancient writers telling of sirens: Greek and Roman.", "colourful": "Painted figures on ships: bright.", "declined": "“few towns ever see one”: interest went down.", "captured": "“the imagination of everyone”: caught it.", "heightened": "“the excitement was … by bright posters”: made stronger.", "display": "“on …”: for everyone to see.", "questions": "“answered … from the crowd”.", "emaciated": "“so thin”: very thin from hunger.", "observers": "“chosen to check”: people who watch closely.", "circumstances": "“under no …”: never, whatever happens.", "compelled": "“not even by the mayor himself”: forced.", "melancholy": "“grey … hill … dim and vague”: sad and gloomy.", "dripping": "“heavy with … moss”: wet moss letting drops fall.", "mottled": "Light and shade on bramble: patchy colours.", "boulders": "“the grey …” in a stream: big rocks.", "warders": "Guarding against an escaped convict: prison guards.", "bleaker": "“… and wilder”: two comparing words; more bare.", "harsh": "“no creeper to soften its … outline”: the opposite of soft.", "crackled": "Twigs under his feet: they snapped.", "steadily": "“…, rapidly”: the dusk crept on without stopping.", "indistinctly": "“first thought he saw a face”: he wasn’t sure; not clearly.", "cheerfully": "“telling himself … not to begin imagining things”: trying to stay positive.", "pattering": "“He thought it was only falling leaves”: a light tapping sound.", "rhythm": "“a regular …”: a steady beat, “pat-pat-pat”.", "snuggle": "“down into the dry leaves”: curl up.", "encountered": "“that dread thing which other little creatures … had … here”: met."};
+const TYPE = {N:"a naming word (noun): a thing, person, place or idea", NP:"a naming word for more than one (plural noun), so it probably ends in -s",
+  A:"a describing word (adjective)", AC:"a comparing describing word (it ends -er)", ADV:"a word that tells you how, when or where something happens (adverb)",
+  VB:"a doing word in its plain form (no -ed, -ing or -s on the end)", VPAST:"a doing word in the past tense", VPP:"a doing word in its past form, after a helper word",
+  VING:"a doing word ending -ing", VPRES:"a doing word in the present tense", APP:"a describing word made from a doing word (it ends -ed)"};
+const STOP = new Set(["and","but","or","to","by","in","of","as","with","that","than","upon","on","at","for","when","the","a","an","it","he","she","they","we","i","was","were","is","are","so","not","from","into","over","under","about","whether","whatever","like"]);
+function ctxWords(s,i){
+  const full = s.text.replace(/\{(\d+)\}/g,(m,k)=> +k===i ? " \u0000 " : s.gaps[+k][0]);
+  const [pre,post] = full.split("\u0000");
+  const words = x => (x.match(/[A-Za-z’'-]+|[.,;:!?“”"()]/g)||[]);
+  return {before: words(pre), after: words(post)};
+}
+function splitExpl(w){
+  const e = EXPL[w] || EXPL[w.toLowerCase()] || "";
+  const parts = e.split(/(?<=[.!?”])\s+/).filter(Boolean);
+  const def = parts[0]||"", clue = parts.find(x=>/^Clue:/.test(x))||"";
+  const notes = parts.slice(1).filter(x=>x!==clue).join(" ");
+  return {def, clue: clue.replace(/^Clue:\s*/,""), notes};
+}
+function howLines(s,i,forHint){
+  const [w,given] = s.gaps[i], tag = TAGS[w] || "N", {before,after} = ctxWords(s,i);
+  const lw = x => (x||"").toLowerCase();
+  const isWord = x => /^[A-Za-z’'-]+$/.test(x||"");
+  const prev = lw(before[before.length-1]), prev2 = lw(before[before.length-2]), next = after[0];
+  const lines = [];
+  let type = "It’s " + TYPE[tag] + ".";
+  if (tag==="A" && isWord(next) && !STOP.has(lw(next))) type += ` It describes ‘${next}’.`;
+  else if (tag==="A") type += " It tells you more about the person or thing the sentence is about.";
+  if (tag==="ADV") type += /ly$/i.test(w) ? " Words like this often end -ly." : " This one doesn’t end in -ly.";
+  if (tag==="AC") type += " It compares, like ‘bigger’ or ‘colder’.";
+  lines.push(["What kind of word?", type]);
+  let g = "";
+  const AUX = ["had","have","has","was","were","been","being","be","is","are"];
+  const MODAL = ["would","could","can","must","will","should","might","may","did","does","do"];
+  if (tag==="VB" && prev==="to") g = "After ‘to’, a doing word stays in its plain form (to run, to hide).";
+  else if (tag==="VB" && MODAL.includes(prev)) g = `After ‘${prev}’, a doing word stays in its plain form.`;
+  else if (tag==="VB" && prev==="only" && MODAL.includes(prev2)) g = `After ‘${prev2} only’, a doing word stays in its plain form.`;
+  else if (tag==="VB" && prev==="me") g = "After ‘made me’, the doing word stays in its plain form.";
+  else if (tag==="VPP"){ const aux = before.slice(-4).map(lw).reverse().find(x=>AUX.includes(x));
+    g = aux ? `After ‘${aux}’, the doing word takes its past form` : "The doing word is in its past form";
+    g += /ed$/.test(w) ? ", usually ending -ed." : ". This one is irregular, so it doesn’t end -ed."; }
+  else if (tag==="VPAST") g = "The passage is told in the past tense, so the doing word is in the past" + (/ed$/.test(w) ? ", usually ending -ed." : ". This one is irregular, so it doesn’t end -ed.");
+  else if (tag==="VPRES") g = "It describes something that is always true, so it’s in the present tense. The subject is plural, so there’s no -s on the end.";
+  else if (tag==="VING" && AUX.includes(prev)) g = `‘${prev}’ + a word ending -ing shows an action that was going on.`;
+  else if (tag==="VING" && ["without","by","from","began","stop","of","after","before"].includes(prev)) g = `After ‘${prev}’, a doing word takes -ing.`;
+  else if (tag==="APP") g = "It’s made from a doing word, so it ends -ed.";
+  if (!g){
+    if (prev==="an") g = "‘an’ in front tells you the word starts with a vowel sound (a, e, i, o, u).";
+    else if (prev==="a") g = "‘a’ in front tells you one thing follows, or a describing word before a thing.";
+    else if (["the","his","her","its","their","my","our","your","this","that","these","those"].includes(prev) && ["N","NP"].includes(tag)) g = `‘${prev}’ in front points to a naming word.`;
+    else if (["the","his","her","its","their","my","our","your"].includes(prev) && tag==="A") g = `‘${prev}’ is followed by a describing word, then the thing it describes.`;
+    else if (["most","more","least","less","very","so","too","quite","rather","much","far"].includes(prev)) g = `‘${prev}’ goes before a describing word (or a word ending -ly).`;
+    else if (["of","for","with","into","from","on","in","at","by"].includes(prev) && ["N","NP"].includes(tag)) g = `After ‘${prev}’, you usually need a naming word.`;
+    else if (["many","several","some","few","thousand","dozens","number"].includes(prev) && tag==="NP") g = `‘${prev}’ tells you there’s more than one, so it’s plural.`;
+  }
+  if (["and","or","but","nor"].includes(prev)){
+    const suf = ["ing","ly","ed"].find(x=>w.toLowerCase().endsWith(x));
+    const mate = suf ? before.slice(Math.max(0,before.length-9),-1).reverse().find(x=>isWord(x) && lw(x).endsWith(suf) && lw(x).length>suf.length+2) : null;
+    if (mate) g = (g? g+" " : "") + `It’s joined to ‘${mate}’ by ‘${prev}’, so it matches it: both end -${suf}.`;
+  } else if (lw(next)==="and" && isWord(after[1])){
+    const mate = after[1]; const suf = ["ing","ed","ly","er"].find(x=>lw(mate).endsWith(x) && w.toLowerCase().endsWith(x));
+    if (suf) g = (g? g+" " : "") + `It’s paired with ‘${mate}’ by ‘and’, so it matches: both end -${suf}.`;
+  }
+  if (g) lines.push(["Grammar clue", g]);
+  const sx = splitExpl(w), def = sx.def, notes = sx.notes, clue = CLUES[w] || sx.clue;
+  const leak = x => x.toLowerCase().includes(w.slice(0,Math.min(4,w.length)).toLowerCase());
+  if (clue && (!forHint || !leak(clue))) lines.push(["Clue in the passage", clue]);
+  if (def && (!forHint || !leak(def))) lines.push([forHint ? "It means something like" : "Meaning", def]);
+  if (!forHint && notes) lines.push(["Also notice", notes]);
+  if (forHint && lines.length<3) lines.push(["Letters", `It starts ‘${w.slice(0,given)}’ and has ${w.length} letters in total.`]);
+  return lines;
+}
+const howHtml = (s,i,forHint) => `<ul class="how">${howLines(s,i,forHint).map(([k,v])=>`<li><b>${k}:</b> ${v}</li>`).join("")}</ul>`;
 const CATS = {
-  blank:{name:"Left blank or unfinished", tip:"Never leave a gap empty. Do the easy ones first, then come back and guess the rest. Keep an eye on the clock: about 50 seconds per gap."},
+  blank:{name:"Left blank or unfinished", tip:"Never leave a gap empty. Do the easy ones first, then come back and guess the rest. Keep an eye on the clock and move on from a hard gap quickly."},
   form:{name:"Right word, wrong ending", tip:"Look at the words just before the gap. “Was” or “were” often needs -ed or -ing. “Three” or “a few” needs a plural -s. A word saying how something happens ends -ly."},
   spelling:{name:"Nearly right: spelling slip", tip:"Say the word slowly in your head and count the boxes. Watch for double letters (succeeded, compelled) and tricky endings (-ible, -ous, -iliar)."},
   meaning:{name:"Didn’t know the word", tip:"Reread the sentence before and after the gap. Ask what kind of word fits, then use the letters shown to narrow it down. In exam mode, if the word doesn’t fill in, try another word that fits."}
@@ -821,7 +916,13 @@ const sessionScores = {};
 const TEST_TITLES = ["The War of the Worlds","A Soldier’s Diary, 1917","Mermaids","The Great Valdini"];
 const ORDER = ["blank","form","spelling","meaning"];
 const ENDINGS = ["ions","ing","ion","ed","es","ly","er","s"];
-const limitFor = i => SETS[i].gaps.length*50;
+const PACES = [
+  {id:"learn", label:"Learning", s:50, note:"50 seconds a word"},
+  {id:"practice", label:"Practice", s:30, note:"30 seconds a word"},
+  {id:"faster", label:"Faster", s:20, note:"20 seconds a word"},
+  {id:"exam", label:"Exam pace", s:480/45, note:"like the CEM mock: 8 minutes for 45 words, about 11 seconds a word"}];
+function pace(){ const id=lsGet("mlt-pace"); return PACES.find(x=>x.id===id) || PACES[0]; }
+const limitFor = i => Math.round(SETS[i].gaps.length*pace().s);
 
 const $ = id => document.getElementById(id);
 let cur = 0, timeLeft = 600, timer = null, started = false, checked = false;
@@ -875,6 +976,8 @@ function stopTimer(){ clearInterval(timer); timer=null; }
 
 function load(){
   stopTimer(); started=false; checked=false; timeLeft=limitFor(cur);
+  $("hint").title = pace().note;
+  hintsUsed = new Set(); lastGap = null; $("hintBox").hidden = true; $("hintBox").innerHTML = "";
   $("clock").textContent = fmt(timeLeft); $("clock").classList.remove("low");
   $("hint").textContent = "The clock starts when you type the first letter.";
   $("checkBtn").disabled = false;
@@ -907,7 +1010,7 @@ function load(){
   }
   applyMode();
   p.querySelectorAll(".gap").forEach(markDone);
-  renderTabs();
+  renderTabs(); updateHintBtn();
 }
 function applyMode(){
   const on=autoOn(); $("passage").classList.toggle("exam", on);
@@ -919,6 +1022,25 @@ function markDone(g){
   const ok = boxes[0].value===want[0] && boxes[1].value===want[1] && boxes.slice(2).every((b,k)=>b.value===want[k+2]);
   g.classList.toggle("done", ok);
   if (ok && autoOn()) boxes.slice(2).forEach(b=>b.classList.add("auto"));
+}
+let hintsUsed = new Set(), lastGap = null;
+function gapDone(g){ const bs=[...g.querySelectorAll(".box")]; return g.classList.contains("done") || (bs.length && bs.every(b=>b.value)); }
+function updateHintBtn(){ $("hintBtn").textContent = `Hint (${3-hintsUsed.size} left)`; $("hintBtn").disabled = checked || hintsUsed.size>=3 && !(lastGap && hintsUsed.has(lastGap)); }
+function showHint(){
+  if (checked) return;
+  const gaps=[...document.querySelectorAll("#passage .gap")];
+  let g = lastGap!==null ? gaps.find(x=>x.dataset.i===lastGap) : null;
+  if (!g || gapDone(g)) g = gaps.find(x=>!gapDone(x));
+  if (!g){ $("hintBox").hidden=false; $("hintBox").innerHTML="<p class=\"note\" style=\"margin:0\">Every gap is filled. Press Check answers.</p>"; return; }
+  const i=g.dataset.i;
+  if (!hintsUsed.has(i)){
+    if (hintsUsed.size>=3){ $("hintBox").hidden=false; $("hintBox").innerHTML="<p class=\"note\" style=\"margin:0\">No hints left for this passage. Reread the sentence before and after the gap.</p>"; return; }
+    hintsUsed.add(i); g.classList.add("hinted");
+  }
+  $("hintBox").hidden=false;
+  $("hintBox").innerHTML = `<h3>Hint for gap ${+i+1}</h3>` + howHtml(SETS[cur], +i, true);
+  updateHintBtn();
+  const b=g.querySelector(".box:not([readonly])"); if (b) b.focus({preventScroll:true});
 }
 function autoOn(){ return $("autoFill").checked; }
 function tryAutoFill(t){
@@ -982,10 +1104,10 @@ function diagnose(word, given, letters){
 
 function check(timeUp){
   if (checked) return;
-  checked = true; stopTimer(); $("checkBtn").disabled = true;
+  checked = true; stopTimer(); $("checkBtn").disabled = true; $("hintBtn").disabled = true; $("hintBox").hidden = true;
   const s = SETS[cur], res=[];
   document.querySelectorAll("#passage .gap").forEach(g=>{
-    const i=+g.dataset.i, [word,given,w2]=s.gaps[i]; const why = w2 || EXPL[word] || "";
+    const i=+g.dataset.i, [word,given]=s.gaps[i]; const why = howHtml(s,i,false) + (hintsUsed.has(String(i)) ? '<span class="hinttag">Hint used</span>' : "");
     const boxes=[...g.querySelectorAll(".box")];
     const letters=boxes.map(b=>b.value.toLowerCase());
     let cat = diagnose(word,given,letters);
@@ -997,27 +1119,26 @@ function check(timeUp){
   });
   const score = res.filter(r=>r.cat==="correct").length;
   lsSet("mlt-draft-"+s.title, null);
-  const prevBest = getBest(cur);
   const blanks = res.filter(r=>r.cat==="blank").length;
-  const won = starsFor({score, total:s.gaps.length, cats:{blank:blanks}}, prevBest);
-  const before = todayStars();
+  const won = starsFor({set:s.title, score, total:s.gaps.length, cats:{blank:blanks}});
+  const before = balance();
   saveAttempt({set:s.title, group:s.group, score, total:s.gaps.length, seconds: started ? limitFor(cur)-Math.max(0,timeLeft) : null,
     timeUp:!!timeUp, cats:Object.fromEntries(ORDER.map(c=>[c,res.filter(r=>r.cat===c).length])),
-    missed:res.filter(r=>r.cat!=="correct").map(r=>r.word), at:new Date().toISOString()});
+    missed:res.filter(r=>r.cat!=="correct").map(r=>r.word), hints:hintsUsed.size, pace:pace().id, at:new Date().toISOString()});
   const used = limitFor(cur) - Math.max(0,timeLeft); const n = s.gaps.length;
   const counts = {}; ORDER.forEach(c=>counts[c]=res.filter(r=>r.cat===c).length);
   const wrong = res.filter(r=>r.cat!=="correct");
   const right = res.filter(r=>r.cat==="correct").map(r=>r.word);
 
-  let pace;
-  if (timeUp) pace = "Time ran out. Practise moving on from hard gaps sooner.";
-  else if (!started) pace = "Not timed.";
-  else pace = `Finished in ${fmt(used)}${used<240?" — quick! Make sure you reread before checking.":""}`;
+  let paceText;
+  if (timeUp) paceText = "Time ran out. Practise moving on from hard gaps sooner.";
+  else if (!started) paceText = "Not timed.";
+  else paceText = `Finished in ${fmt(used)}${used<Math.min(240,limitFor(cur)*0.5)?" — quick! Make sure you reread before checking.":""}`;
 
   const topCats = ORDER.filter(c=>counts[c]).sort((a,b)=>counts[b]-counts[a]);
   let html = "";
   if (timeUp) html += `<div class="banner">Time’s up. Here’s how it went.</div>`;
-  html += `<div class="score" style="${timeUp?"margin-top:14px":""}"><span class="big">${score}/${n}</span><span class="pace">${pace}</span></div>`;
+  html += `<div class="score" style="${timeUp?"margin-top:14px":""}"><span class="big">${score}/${n}</span><span class="pace">${paceText}</span></div>`;
   if (topCats.length){
     html += `<h2 style="margin-top:20px">Why marks were lost</h2><div class="cats">`;
     topCats.forEach(c=>{ html += `<div class="cat c-${c}"><h3>${CATS[c].name}<span>${counts[c]}</span></h3><p>${CATS[c].tip}</p></div>`; });
@@ -1032,9 +1153,11 @@ function check(timeUp){
     html += `<p style="margin-top:14px">Full marks. Try the next set, or this one again faster.</p><h2 style="margin-top:22px">What they mean</h2><ul class="review">` + res.map(r=>`<li><span class="n">${r.i+1}</span><span class="words"><span class="right">${r.word}</span>${MINE.has(r.word.toLowerCase())?'<span class="mine">★ her list</span>':""}</span><span class="why">${r.why}</span></li>`).join("") + `</ul>`;
   }
   const after = before + won.length;
-  const dayMsg = before>=DAILY_GOAL ? " Today’s movie time is already unlocked." : after>=DAILY_GOAL ? " <b>That unlocks today’s 15 minutes of movie time!</b>" : ` ${DAILY_GOAL-after} more star${DAILY_GOAL-after===1?"":"s"} today for movie time.`;
-  const nextTip = !won.includes("no blanks") ? " Leave no blanks next time for an extra star." : !won.includes("70%+ right") ? " Get 70% right for another star." : !won.includes("90%+ right") ? " Get 90% right for another star." : "";
-  html = `<div class="earned">${won.length ? `<b>${"★".repeat(won.length)} ${won.length} star${won.length>1?"s":""}</b> for ${won.join(", ")}.` : "<b>No stars this time.</b>"}${dayMsg}${nextTip}</div>` + html;
+  const dayMsg = ` You now have ${after} star${after===1?"":"s"} saved.` + (after>=COST && !usedToday() ? " <b>Enough for 15 minutes of movie time!</b>" : after<COST ? ` ${COST-after} more for 15 minutes of movie time.` : "");
+  const pi = PACES.findIndex(x=>x.id===pace().id);
+  const speedTip = (!timeUp && score/s.gaps.length>=0.7 && pi<PACES.length-1) ? ` <b>Ready to speed up?</b> Try the ${PACES[pi+1].label} timer next.` : (timeUp && pi>0 ? " The clock ran out. Stay on this speed until you finish in time." : "");
+  const nextTip = !won.includes("no blanks") ? " Leave no blanks next time for an extra star." : !won.includes("70%+ right") ? " Get 70% right for another star." : "";
+  html = `<div class="earned">${won.length ? `<b>${"★".repeat(won.length)} ${won.length} star${won.length>1?"s":""}</b> for ${won.join(", ")}.` : "<b>No stars this time.</b>"}${dayMsg}${nextTip}${speedTip}</div>` + html;
   sessionScores[s.title]={score, total:s.gaps.length};
   const k=pairOf(cur);
   if (!isPair(cur)){}
@@ -1051,45 +1174,54 @@ function check(timeUp){
 }
 
 let REDEEMED = [];  // movie-time used
+let BONUS = [], bonusStore = null, META = {seen:[]}, metaDoc = null;
+const GRANTS = [{id:"greta-participation-6", stars:6, reason:"taking part in her last 6 passages"}];
+function lsList(k){ try { return JSON.parse(lsGet(k)||"[]"); } catch(e){ return []; } }
+function saveMeta(){ lsSet("mlt-meta", JSON.stringify(META)); if (metaDoc) metaDoc.set(META).catch(()=>{}); }
+async function addBonus(x){
+  if (bonusStore){ try { await bonusStore.add(x); return; } catch(e){} }
+  BONUS.push(x); const xs=lsList("mlt-bonus"); xs.push(x); lsSet("mlt-bonus", JSON.stringify(xs)); renderReward();
+}
+async function applyGrants(){
+  for (const g of GRANTS){ if (META.seen.includes(g.id)) continue;
+    META.seen.push(g.id); saveMeta();
+    await addBonus({id:g.id, stars:g.stars, reason:g.reason, at:new Date().toISOString()}); }
+}
 let rewardStore = null;
-const DAILY_GOAL = 4, MINUTES = 15;
+const COST = 5, MINUTES = 15;
 function dayKey(iso){ const d=new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-CA"); }
-function starsFor(a, prevBest){
-  const why=[], pct = a.total ? a.score/a.total : 0;
+const PART2 = new Set(PAIRS.map(p=>p[1]));
+function starsFor(a){
+  const why = PART2.has(a.set) ? [] : ["attempting the set"], pct = a.total ? a.score/a.total : 0;
   if (((a.cats||{}).blank||0)===0) why.push("no blanks");
   if (pct>=0.7) why.push("70%+ right");
-  if (pct>=0.9) why.push("90%+ right");
-  if (prevBest!==null && prevBest!==undefined && a.score>prevBest) why.push("new best");
   return why;
 }
 function starsByDay(){
-  const best={}, days={}; let total=0;
-  ATTEMPTS.slice().sort((x,y)=>String(x.at).localeCompare(String(y.at))).forEach(a=>{
-    const n=starsFor(a, a.set in best ? best[a.set] : null).length;
-    best[a.set]=Math.max(best[a.set] ?? -1, a.score);
-    const k=dayKey(a.at); days[k]=(days[k]||0)+n; total+=n;
-  });
+  const days={}; let total=0;
+  ATTEMPTS.forEach(a=>{ const n=starsFor(a).length; const k=dayKey(a.at); days[k]=(days[k]||0)+n; total+=n; });
   return {days,total};
 }
-function totalStars(){ return starsByDay().total; }
-function todayStars(){ return starsByDay().days[dayKey(new Date().toISOString())]||0; }
+function totalStars(){ return starsByDay().total + BONUS.reduce((t,b)=>t+(b.stars||0),0); }
+function balance(){ return totalStars() - REDEEMED.length*COST; }
+function usedToday(){ const t=dayKey(new Date().toISOString()); return REDEEMED.some(x=>dayKey(x.at)===t); }
 function renderReward(){
-  const {days,total}=starsByDay(), today=dayKey(new Date().toISOString()), t=days[today]||0;
-  const unlocked=t>=DAILY_GOAL, used=REDEEMED.some(x=>dayKey(x.at)===today);
-  let meter=""; for(let k=0;k<DAILY_GOAL;k++) meter+=`<i class="${k<Math.min(t,DAILY_GOAL)?"on":""}">★</i>`;
+  const {days}=starsByDay(), total=totalStars(), bal=Math.max(0,balance()), used=usedToday(), ready=bal>=COST;
+  let meter=""; for(let k=0;k<COST;k++) meter+=`<i class="${k<Math.min(bal,COST)?"on":""}">★</i>`;
   let week=""; for(let k=6;k>=0;k--){ const d=new Date(); d.setDate(d.getDate()-k); const key=d.toLocaleDateString("en-CA");
-    const ok=(days[key]||0)>=DAILY_GOAL; week+=`<i class="${ok?"on":""}" title="${d.toLocaleDateString("en-GB",{weekday:"long"})}">${d.toLocaleDateString("en-GB",{weekday:"narrow"})}</i>`; }
-  const headline = used ? "Watched today ✓" : unlocked ? "15 min unlocked!" : `${DAILY_GOAL-t} more star${DAILY_GOAL-t===1?"":"s"} today`;
-  const sub = used ? "Today’s movie time is used. New stars tomorrow." : unlocked ? "Today’s movie time is ready." : `for today’s 15 minutes of movie time`;
+    week+=`<i class="${days[key]?"on":""}" title="${d.toLocaleDateString("en-GB",{weekday:"long"})}">${d.toLocaleDateString("en-GB",{weekday:"narrow"})}</i>`; }
+  const headline = `${bal} star${bal===1?"":"s"} saved`;
+  const sub = used ? "Movie time used today. Stars keep saving for tomorrow." : ready ? "Enough for 15 minutes of movie time!" : `${COST-bal} more star${COST-bal===1?"":"s"} for 15 minutes of movie time`;
   $("reward").innerHTML=`<div><div class="big">${headline}</div><div class="sub2">${sub}</div>
-    <div class="meter" aria-label="${Math.min(t,DAILY_GOAL)} of ${DAILY_GOAL} stars today">${meter}</div>
-    <div class="sub2" style="margin-top:8px">Last 7 days · ${total} star${total===1?"":"s"} in total</div>
+    <div class="meter" aria-label="${Math.min(bal,COST)} of ${COST} stars">${meter}</div>
+    ${BONUS.length?`<div class="sub2" style="margin-top:6px">Bonus: ${BONUS.map(b=>`★ ${b.stars} for ${b.reason}`).join(", ")}</div>`:""}
+    <div class="sub2" style="margin-top:8px">Days practised this week · ${total} star${total===1?"":"s"} earned in total</div>
     <div class="meter week">${week}</div></div>
-    <button class="btn" type="button" id="useBtn" ${unlocked&&!used?"":"disabled"}>Mark as watched</button>`;
+    <button class="btn" type="button" id="useBtn" ${ready&&!used?"":"disabled"}>Use 5 stars: 15 min</button>`;
   $("useBtn").onclick=useMovieTime;
 }
 function useMovieTime(){
-  if (REDEEMED.some(x=>dayKey(x.at)===dayKey(new Date().toISOString()))) return;
+  if (usedToday() || balance()<COST) return;
   const x={minutes:MINUTES, at:new Date().toISOString()};
   if (rewardStore){ rewardStore.add(x).catch(()=>{ keepRedeemLocal(x); }); }
   else keepRedeemLocal(x);
@@ -1140,11 +1272,18 @@ function renderProgress(){
 async function connectStore(){
   try { ATTEMPTS = JSON.parse(lsGet("mlt-attempts")||"[]"); } catch(e){ ATTEMPTS=[]; }
   try { REDEEMED = JSON.parse(lsGet("mlt-redeemed")||"[]"); } catch(e){ REDEEMED=[]; }
+  BONUS = lsList("mlt-bonus"); try { META = JSON.parse(lsGet("mlt-meta")||"null") || {seen:[]}; } catch(e){ META={seen:[]}; }
   renderProgress(); renderTabs();
   const db = window.claude && window.claude.use ? await window.claude.use("db").catch(()=>null) : null;
-  if (!db){ setSync(false); return; }
+  if (!db){ setSync(false); await applyGrants(); renderProgress(); return; }
   store = db.collection("attempts");
   rewardStore = db.collection("rewards");
+  bonusStore = db.collection("bonus"); metaDoc = db.doc("meta/state");
+  try { const m = await metaDoc.get(); if (m.exists){ const d=m.data(); META.seen = [...new Set([...(META.seen||[]), ...((d&&d.seen)||[])])]; } } catch(e){}
+  const localB = lsList("mlt-bonus"); lsSet("mlt-bonus", null);
+  for (const x of localB){ try { await bonusStore.add(x); } catch(e){ BONUS.push(x); } }
+  bonusStore.onSnapshot(snap=>{ BONUS = snap.docs.map(d=>d.data()).filter(Boolean).concat(lsList("mlt-bonus")); renderReward(); }, ()=>{});
+  await applyGrants();
   let localR=[]; try { localR=JSON.parse(lsGet("mlt-redeemed")||"[]"); } catch(e){}
   lsSet("mlt-redeemed", null);
   for (const x of localR){ try { await rewardStore.add(x); } catch(e){ keepRedeemLocal(x); } }
@@ -1165,7 +1304,7 @@ async function connectStore(){
 }
 
 function makeBackup(){
-  const data={v:1,a:ATTEMPTS,r:REDEEMED};
+  const data={v:1,a:ATTEMPTS,r:REDEEMED,b:BONUS,m:META};
   return "MLT1:"+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 }
 $("copyBackup").onclick=()=>{
@@ -1183,9 +1322,26 @@ $("restoreBackup").onclick=async()=>{
   const haveR=new Set(REDEEMED.map(x=>x.at)), newR=(data.r||[]).filter(x=>x && x.at && !haveR.has(x.at));
   for (const a of newA){ if (store){ try { await store.add(a); continue; } catch(e){} } keepLocal(a); }
   for (const x of newR){ if (rewardStore){ try { await rewardStore.add(x); continue; } catch(e){} } keepRedeemLocal(x); }
+  const haveB=new Set(BONUS.map(x=>x.id+"|"+x.at)), newB=(data.b||[]).filter(x=>x && !haveB.has(x.id+"|"+x.at));
+  for (const x of newB) await addBonus(x);
+  if (data.m && data.m.seen){ META.seen=[...new Set([...META.seen, ...data.m.seen])]; saveMeta(); }
   ATTEMPTS.sort((x,y)=>String(y.at).localeCompare(String(x.at)));
   renderProgress(); renderTabs();
   $("backupMsg").textContent = newA.length||newR.length ? `Restored ${newA.length} set${newA.length===1?"":"s"}.` : "Nothing new to restore. This device already has everything in that code.";
+};
+
+$("wipeBtn").onclick=()=>{ $("wipeConfirm").hidden=false; };
+$("wipeNo").onclick=()=>{ $("wipeConfirm").hidden=true; };
+$("wipeYes").onclick=async()=>{
+  $("wipeYes").disabled=true;
+  for (const c of [store, rewardStore, bonusStore]){ if (!c) continue;
+    try { const snap=await c.get(); for (const d of snap.docs){ try { await c.doc(d.id).delete(); } catch(e){} } } catch(e){} }
+  try { Object.keys(localStorage).filter(k=>/^mlt-(attempts|redeemed|bonus|best-|draft-)/.test(k)).forEach(k=>localStorage.removeItem(k)); } catch(e){}
+  ATTEMPTS=[]; REDEEMED=[]; BONUS=[];
+  GRANTS.forEach(g=>{ if (!META.seen.includes(g.id)) META.seen.push(g.id); }); saveMeta();
+  $("wipeConfirm").hidden=true; $("wipeYes").disabled=false;
+  cur=0; load(); renderProgress(); renderTabs();
+  $("backupMsg").textContent="Progress cleared. Ready for a new player.";
 };
 
 function buildGloss(){
@@ -1195,7 +1351,15 @@ function buildGloss(){
   $("glossBody").innerHTML = `<p class="note" style="margin:0 0 6px">${rows.length} words, A to Z. ★ marks words from her vocabulary list. Best used after a set, not before.</p><ul class="review" style="margin-top:0">` + rows.map(([w,x])=>`<li style="grid-template-columns:minmax(0,1fr)"><span class="words"><span class="right">${w}</span>${MINE.has(w)?'<span class="mine">★ her list</span>':""}</span><span class="why" style="grid-column:1">${x}</span></li>`).join("") + `</ul>`;
 }
 buildGloss();
+$("paceSel").innerHTML = PACES.map(x=>`<option value="${x.id}">${x.label}</option>`).join("");
+$("paceSel").value = pace().id;
+$("paceSel").onchange = ()=>{ lsSet("mlt-pace", $("paceSel").value);
+  if (!started && !checked){ timeLeft=limitFor(cur); $("clock").textContent=fmt(timeLeft); $("clock").classList.remove("low"); }
+  $("paceMsg").textContent = `${pace().label}: ${pace().note}. ${started&&!checked?"The new speed starts with the next passage.":`This passage: ${fmt(limitFor(cur))}.`}`;
+};
 $("checkBtn").onclick = ()=>check(false);
+$("hintBtn").onclick = showHint;
+$("passage").addEventListener("focusin", e=>{ const g=e.target.closest(".gap"); if (g) { lastGap=g.dataset.i; updateHintBtn(); } });
 $("resetBtn").onclick = ()=>load();
 if (innerWidth < 700) $("tips").open = false;
 $("autoFill").checked = lsGet("mlt-autofill")!=="off";
