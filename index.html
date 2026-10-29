@@ -56,6 +56,14 @@ details.tips[open] summary::after{content:"Hide"}
 .tab:focus-visible,.btn:focus-visible,.box:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .clock{font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums;padding:6px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line)}
+.gap.nudge .box:not(.rest){border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.mv{display:none;font-family:var(--body);font-size:11.5px;font-weight:700;color:var(--accent-ink);background:var(--accent);border-radius:99px;padding:1px 7px;margin-left:4px;white-space:nowrap}
+.gap.nudge .mv{display:inline}
+.sprintrep{margin-top:14px;padding:12px 14px;border-radius:10px;border:1px solid var(--accent);background:var(--panel-2)}
+.sprintrep h3{margin:0 0 6px;font-size:16px}
+.sprintrep ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:no-preference){.gap.nudge .box:not(.rest){animation:nudge 1s ease-in-out 2}}
+@keyframes nudge{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 35%,transparent)}}
 .pacepick{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
 .pacepick select{font:inherit;font-size:14px;color:var(--fg);background:var(--panel-2);border:1px solid var(--muted);border-radius:8px;padding:6px 8px}
 .clock.low{color:var(--bad);border-color:var(--bad)}
@@ -198,6 +206,7 @@ details.tips[open] summary::after{content:"Hide"}
     </div>
     <p class="note" id="hint" style="margin-top:8px">The clock starts when you type the first letter.</p>
     <p class="note" id="paceMsg" style="margin-top:2px" aria-live="polite"></p>
+    <label class="opt" for="sprintMode"><input type="checkbox" id="sprintMode"> <b style="color:var(--fg)">Sprint mode</b>: exam pace, and a “move on” nudge if a gap takes more than 5 seconds</label>
     <label class="opt" for="autoFill"><input type="checkbox" id="autoFill"> Exam mode (like CEM Select): the boxes show the word’s length, but you only type the next two letters. If they’re right, the word fills in and you get the mark</label>
     <div class="hintbox" id="hintBox" hidden aria-live="polite"></div>
     <div class="passage" id="passage"></div>
@@ -922,7 +931,15 @@ const PACES = [
   {id:"faster", label:"Faster", s:20, note:"20 seconds a word"},
   {id:"exam", label:"Exam pace", s:480/45, note:"like the CEM mock: 8 minutes for 45 words, about 11 seconds a word"}];
 function pace(){ const id=lsGet("mlt-pace"); return PACES.find(x=>x.id===id) || PACES[0]; }
-const limitFor = i => Math.round(SETS[i].gaps.length*pace().s);
+function sprintOn(){ return lsGet("mlt-sprint")==="on"; }
+const limitFor = i => Math.round(SETS[i].gaps.length*(sprintOn() ? PACES[3].s : pace().s));
+let nudgeTimer=null;
+function clearNudge(){ clearTimeout(nudgeTimer); nudgeTimer=null; }
+function armNudge(g){
+  clearNudge();
+  if (!sprintOn() || checked || gapDone(g)) return;
+  nudgeTimer=setTimeout(()=>{ if (!gapDone(g) && !checked){ g.classList.add("nudge"); g.dataset.skipped="1"; } }, 5000);
+}
 
 const $ = id => document.getElementById(id);
 let cur = 0, timeLeft = 600, timer = null, started = false, checked = false;
@@ -977,7 +994,7 @@ function stopTimer(){ clearInterval(timer); timer=null; }
 function load(){
   stopTimer(); started=false; checked=false; timeLeft=limitFor(cur);
   $("hint").title = pace().note;
-  hintsUsed = new Set(); lastGap = null; $("hintBox").hidden = true; $("hintBox").innerHTML = "";
+  hintsUsed = new Set(); lastGap = null; clearNudge(); $("hintBox").hidden = true; $("hintBox").innerHTML = "";
   $("clock").textContent = fmt(timeLeft); $("clock").classList.remove("low");
   $("hint").textContent = "The clock starts when you type the first letter.";
   $("checkBtn").disabled = false;
@@ -999,7 +1016,7 @@ function load(){
     for (let j=given;j<word.length;j++){
       html += `<input class="box${j-given>=2?" rest":""}" id="b${cur}-${i}-${j}" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Gap ${i+1}, letter ${j+1}">`;
     }
-    html += `<span class="more" aria-hidden="true">…</span><span class="fix" hidden></span>`;
+    html += `<span class="more" aria-hidden="true">…</span><span class="mv" aria-hidden="true">move on ➜</span><span class="fix" hidden></span>`;
     g.innerHTML = html; p.appendChild(g);
   });
   let draft=null; try { draft=JSON.parse(lsGet("mlt-draft-"+s.title)||"null"); } catch(e){}
@@ -1052,7 +1069,7 @@ function tryAutoFill(t){
   if (boxes[0].value!==want[0] || boxes[1].value!==want[1]) return false;
 
   boxes.slice(2).forEach((b,k)=>{ b.value=want[k+2]; b.classList.add("auto"); });
-  g.classList.add("done");
+  g.classList.add("done"); g.classList.remove("nudge"); if (g.dataset.skipped) g.dataset.comeback="1"; clearNudge();
   const all=[...document.querySelectorAll("#passage .box")], next=all[all.indexOf(boxes[boxes.length-1])+1];
   if (next) next.focus({preventScroll:false}); else t.blur();
   return true;
@@ -1104,7 +1121,7 @@ function diagnose(word, given, letters){
 
 function check(timeUp){
   if (checked) return;
-  checked = true; stopTimer(); $("checkBtn").disabled = true; $("hintBtn").disabled = true; $("hintBox").hidden = true;
+  checked = true; stopTimer(); clearNudge(); document.querySelectorAll("#passage .gap.nudge").forEach(g=>g.classList.remove("nudge")); $("checkBtn").disabled = true; $("hintBtn").disabled = true; $("hintBox").hidden = true;
   const s = SETS[cur], res=[];
   document.querySelectorAll("#passage .gap").forEach(g=>{
     const i=+g.dataset.i, [word,given]=s.gaps[i]; const why = howHtml(s,i,false) + (hintsUsed.has(String(i)) ? '<span class="hinttag">Hint used</span>' : "");
@@ -1120,11 +1137,20 @@ function check(timeUp){
   const score = res.filter(r=>r.cat==="correct").length;
   lsSet("mlt-draft-"+s.title, null);
   const blanks = res.filter(r=>r.cat==="blank").length;
+  let sprint = null;
+  if (sprintOn()){
+    const gs=[...document.querySelectorAll("#passage .gap")];
+    const reached = gs.filter(g=>[...g.querySelectorAll(".box")].some(b=>b.value)).length;
+    const easy = res.filter(r=>r.word.length<=7 && !MINE.has(r.word.toLowerCase()));
+    const easyRight = easy.filter(r=>r.cat==="correct");
+    const comebacks = gs.filter(g=>g.dataset.comeback).length, skipped = gs.filter(g=>g.dataset.skipped).length;
+    sprint = {reached, total:gs.length, easyTotal:easy.length, easyRight:easyRight.length, easyMissed:easy.filter(r=>r.cat!=="correct").map(r=>r.word), skipped, comebacks};
+  }
   const won = starsFor({set:s.title, score, total:s.gaps.length, cats:{blank:blanks}});
   const before = balance();
   saveAttempt({set:s.title, group:s.group, score, total:s.gaps.length, seconds: started ? limitFor(cur)-Math.max(0,timeLeft) : null,
     timeUp:!!timeUp, cats:Object.fromEntries(ORDER.map(c=>[c,res.filter(r=>r.cat===c).length])),
-    missed:res.filter(r=>r.cat!=="correct").map(r=>r.word), hints:hintsUsed.size, pace:pace().id, at:new Date().toISOString()});
+    missed:res.filter(r=>r.cat!=="correct").map(r=>r.word), hints:hintsUsed.size, pace: sprintOn() ? "sprint" : pace().id, sprint, at:new Date().toISOString()});
   const used = limitFor(cur) - Math.max(0,timeLeft); const n = s.gaps.length;
   const counts = {}; ORDER.forEach(c=>counts[c]=res.filter(r=>r.cat===c).length);
   const wrong = res.filter(r=>r.cat!=="correct");
@@ -1157,6 +1183,13 @@ function check(timeUp){
   const pi = PACES.findIndex(x=>x.id===pace().id);
   const speedTip = (!timeUp && score/s.gaps.length>=0.7 && pi<PACES.length-1) ? ` <b>Ready to speed up?</b> Try the ${PACES[pi+1].label} timer next.` : (timeUp && pi>0 ? " The clock ran out. Stay on this speed until you finish in time." : "");
   const nextTip = !won.includes("no blanks") ? " Leave no blanks next time for an extra star." : !won.includes("70%+ right") ? " Get 70% right for another star." : "";
+  if (sprint){
+    const verdict = sprint.reached < sprint.total ? `You didn’t reach ${sprint.total-sprint.reached} gap${sprint.total-sprint.reached===1?"":"s"}. Next time, move on faster on the first pass.` : "You reached every gap. Great pace!";
+    html = `<div class="sprintrep"><h3>Sprint report</h3><ul>
+      <li><b>Reached:</b> ${sprint.reached} of ${sprint.total} gaps. ${verdict}</li>
+      <li><b>Easy words:</b> ${sprint.easyRight} of ${sprint.easyTotal} right.${sprint.easyMissed.length?` Missed: ${sprint.easyMissed.join(", ")}. These are free marks, so grab them on the first pass.`:" No easy marks lost!"}</li>
+      <li><b>Two passes:</b> moved on from ${sprint.skipped} gap${sprint.skipped===1?"":"s"} and came back to get ${sprint.comebacks}.${sprint.skipped===0?" Try leaving hard words and coming back.":""}</li></ul></div>` + html;
+  }
   html = `<div class="earned">${won.length ? `<b>${"★".repeat(won.length)} ${won.length} star${won.length>1?"s":""}</b> for ${won.join(", ")}.` : "<b>No stars this time.</b>"}${dayMsg}${nextTip}${speedTip}</div>` + html;
   sessionScores[s.title]={score, total:s.gaps.length};
   const k=pairOf(cur);
@@ -1351,15 +1384,23 @@ function buildGloss(){
   $("glossBody").innerHTML = `<p class="note" style="margin:0 0 6px">${rows.length} words, A to Z. ★ marks words from her vocabulary list. Best used after a set, not before.</p><ul class="review" style="margin-top:0">` + rows.map(([w,x])=>`<li style="grid-template-columns:minmax(0,1fr)"><span class="words"><span class="right">${w}</span>${MINE.has(w)?'<span class="mine">★ her list</span>':""}</span><span class="why" style="grid-column:1">${x}</span></li>`).join("") + `</ul>`;
 }
 buildGloss();
+$("sprintMode").checked = sprintOn();
+$("sprintMode").onchange = ()=>{ lsSet("mlt-sprint", $("sprintMode").checked?"on":"off");
+  if ($("sprintMode").checked && !$("autoFill").checked){ $("autoFill").checked=true; lsSet("mlt-autofill","on"); applyMode(); }
+  $("paceSel").disabled = $("sprintMode").checked;
+  if (!started && !checked){ timeLeft=limitFor(cur); $("clock").textContent=fmt(timeLeft); }
+  $("paceMsg").textContent = $("sprintMode").checked ? `Sprint: exam pace, ${fmt(limitFor(cur))} for this passage. First pass: only words you get in 5 seconds. Then go back.` : "";
+};
 $("paceSel").innerHTML = PACES.map(x=>`<option value="${x.id}">${x.label}</option>`).join("");
-$("paceSel").value = pace().id;
+$("paceSel").value = pace().id; $("paceSel").disabled = sprintOn();
 $("paceSel").onchange = ()=>{ lsSet("mlt-pace", $("paceSel").value);
   if (!started && !checked){ timeLeft=limitFor(cur); $("clock").textContent=fmt(timeLeft); $("clock").classList.remove("low"); }
   $("paceMsg").textContent = `${pace().label}: ${pace().note}. ${started&&!checked?"The new speed starts with the next passage.":`This passage: ${fmt(limitFor(cur))}.`}`;
 };
 $("checkBtn").onclick = ()=>check(false);
 $("hintBtn").onclick = showHint;
-$("passage").addEventListener("focusin", e=>{ const g=e.target.closest(".gap"); if (g) { lastGap=g.dataset.i; updateHintBtn(); } });
+$("passage").addEventListener("focusin", e=>{ const g=e.target.closest(".gap"); if (g) { lastGap=g.dataset.i; updateHintBtn(); if (!g.classList.contains("nudge")) armNudge(g); } });
+$("passage").addEventListener("focusout", e=>{ const g=e.target.closest(".gap"); if (g && !g.contains(e.relatedTarget)) { clearNudge(); g.classList.remove("nudge"); } });
 $("resetBtn").onclick = ()=>load();
 if (innerWidth < 700) $("tips").open = false;
 $("autoFill").checked = lsGet("mlt-autofill")!=="off";
